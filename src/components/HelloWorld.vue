@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import Navbar from './Navbar.vue'; 
 import Carousel from './Carousel.vue'; // Importiere die Carousel-Komponente
+import Footer from './Footer.vue';
+import Feature from './Feature.vue';
+import About from './About.vue';
 </script>
 
 <template>
-   <Navbar />
-    <!-- Hauptinhalt der Seite -->
+  <Navbar />
+  <!-- Hauptinhalt der Seite -->
   <div class="container mt-5 pt-5 d-flex">
     <!-- Linke Spalte: Text und Suche -->
     <div class="text-container">
@@ -26,42 +29,71 @@ import Carousel from './Carousel.vue'; // Importiere die Carousel-Komponente
     <!-- Rechte Spalte: Karussell -->
     <Carousel />
   </div>
+    <!-- About -->
+  <div>
+    <About />
+  </div>
+   <!-- Feature -->
+  <div> 
+    <Feature />
+  </div>
+   <!-- Footer -->
+  <div>
+    <Footer />
+  </div>
+  
 </template>
 
 <style scoped>
-/* Füge Abstände für die Navbar hinzu, damit der Inhalt nicht verdeckt wird */
+/* Adding padding for the Navbar */
 body {
-  padding-top: 70px; /* Damit der Seiteninhalt nicht von der Navbar überdeckt wird */
+  padding-top: 70px;
 }
 
 .text-container {
-  max-width: 400px; /* Begrenze die Breite des Textcontainers */
-  margin-left: 0; /* Stelle sicher, dass der Container links ausgerichtet ist */
-  padding-left: 10px; /* Leichter Abstand vom Rand */
+  max-width: 400px;
+  margin-left: 0;
+  margin-right: 40px;
+  padding-left: 10px;
+  flex-shrink: 0;
 }
 
 .search-form {
-  margin-top: 20px; /* Abstand zwischen den Texten und dem Suchfeld */
+  margin-top: 20px;
 }
 
 .container {
   display: flex;
-  justify-content: space-between; /* Inhalte zwischen den beiden Spalten verteilen */
-  align-items: flex-start; /* Inhalte oben ausrichten */
-  height: calc(100vh - 70px); /* Volle Höhe minus die Höhe der Navbar */
+  justify-content: flex-start;
+  align-items: flex-start;
+  height: calc(100vh - 70px);
+  padding-bottom: 20px; /* Ensure space at the bottom */
+}
+
+/* Adjust the carousel container dimensions */
+.carousel-container {
+  max-width: 400px; /* Match the width with the carousel */
+  height: auto;
+  margin-top: 20px;
+  margin-left: 20px;
 }
 
 .carousel {
-  width: 100%;
-  max-width: 600px; /* Begrenze die Breite des Karussells */
+  max-width: 400px;
+  margin: auto;
+  margin-top: 20px;
+  margin-bottom: 40px; /* Add some space below the carousel */
+}
+
+.carousel-inner {
+  max-height: 300px;
+  overflow: hidden;
 }
 
 .carousel-image {
-  object-fit: cover; /* Bild an den Container anpassen */
-  height: 300px; /* Höhe des Karussells festlegen */
+  max-height: 300px;
+  object-fit: cover;
 }
 
-.carousel-indicators [data-bs-target] {
-  background-color: #000; /* Farbe der Indikatoren */
-}
 </style>
+

@@ -1,7 +1,5 @@
-import type { ManifestEntry } from 'workbox-build';
-
-declare global {
-  interface ServiceWorkerGlobalScope {
-    __WB_MANIFEST: Array<ManifestEntry>;
-  }
+declare module '*.png' {
+  const value: string;
+  export default value;
 }
+

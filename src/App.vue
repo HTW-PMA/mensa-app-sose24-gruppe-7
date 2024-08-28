@@ -2,6 +2,7 @@
 import HelloWorld from './components/HelloWorld.vue'
 import Navbar from './components/Navbar.vue'
 import Carousel from './components/Carousel.vue';
+import Footer from './components/Footer.vue';
 </script>
 
 <template>

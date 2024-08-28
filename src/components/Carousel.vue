@@ -44,22 +44,25 @@
   </template>
   
   <script setup lang="ts">
-  // Keine zusätzlichen Scripts notwendig
+  // No additional scripts needed
   </script>
   
   <style scoped>
   .carousel {
-    width: 100%;
-    max-width: 600px; /* Begrenze die Breite des Karussells */
+    max-width: 400px; /* Adjust the max-width */
+    margin: auto;
+    margin-top: 20px;
+    margin-bottom: 40px; /* Ensure there's enough space below the carousel */
+  }
+  
+  .carousel-inner {
+    max-height: 300px; /* Adjust the height */
+    overflow: hidden;
   }
   
   .carousel-image {
-    object-fit: cover; /* Bild an den Container anpassen */
-    height: 300px; /* Höhe des Karussells festlegen */
-  }
-  
-  .carousel-indicators [data-bs-target] {
-    background-color: #000; /* Farbe der Indikatoren */
+    max-height: 300px; /* Ensure images fit within the height */
+    object-fit: cover;
   }
   </style>
   
