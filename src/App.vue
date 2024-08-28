@@ -6,7 +6,6 @@ import Navbar from './components/Navbar.vue'
 <template>
   <HelloWorld msg="Vite + Vue" />
   <div id="app">
-      <Navbar />
       <!-- Andere Komponenten oder Inhalte hier -->
     </div>
 </template>
