@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import HelloWorld from './components/HelloWorld.vue'
 import Navbar from './components/Navbar.vue'
+import Carousel from './components/Carousel.vue';
 </script>
 
 <template>
