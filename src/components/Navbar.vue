@@ -15,7 +15,7 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto">
         <li class="nav-item active">
-          <a class="nav-link" href="#">Home</a>
+          <router-link class="nav-link" to="/">Home</router-link>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#">Link</a>
@@ -32,7 +32,7 @@
             Dropdown
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="#">Action</a></li>
+            <li><router-link class="dropdown-item" to="/weekview">WeekView</router-link></li>
             <li><a class="dropdown-item" href="#">Another action</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="#">Something else here</a></li>
@@ -47,8 +47,9 @@
         <button class="btn btn-outline-success" type="submit">Search</button>
       </form>
       <div class="navbar-nav">
-        <button class="btn btn-outline-primary me-2" type="button">Sign In</button>
-        <button class="btn btn-primary" type="button">Login</button>
+        <router-link class="btn btn-outline-primary me-2" to="/signup">Sign Up</router-link>
+        <!-- Hier den Login-Button verlinken -->
+        <router-link class="btn btn-primary" to="/login">Sign In</router-link>
       </div>
     </div>
   </nav>

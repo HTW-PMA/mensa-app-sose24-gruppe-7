@@ -5,10 +5,21 @@
 </template>
 
 <style scoped>
+/* Footer Section */
 .footer {
-  text-align: center;
-  padding: 1rem;
+  width: 100%; /* Full width of the parent container */
   background-color: #333;
-  color: #fff;
+  color: white;
+  padding: 40px 20px;
+  text-align: center;
+  overflow: hidden; /* Prevents horizontal scrolling */
+  position: relative;
+  min-height: 100px; /* Minimum height for the footer */
+  flex-shrink: 0; /* Prevents shrinking */
+}
+
+/* Optional: If the footer should take full height */
+.footer.full-height {
+  height: 100vh; /* Takes up full viewport height */
 }
 </style>

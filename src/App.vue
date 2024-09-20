@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import Navbar from './components/Navbar.vue'
-import Carousel from './components/Carousel.vue';
+import Navbar from './components/Navbar.vue';
 import Footer from './components/Footer.vue';
+import Home from './pages/Home.vue';
 </script>
 
 <template>
-  <HelloWorld msg="Vite + Vue" />
   <div id="app">
-      <!-- Andere Komponenten oder Inhalte hier -->
-    </div>
+    <!-- Navbar wird hier angezeigt -->
+    <Navbar />
+
+    <!-- Der Router-View zeigt die Inhalte basierend auf der Route -->
+    <router-view></router-view>
+
+    <!-- Footer wird unterhalb des Router-View angezeigt -->
+    <Footer />
+  </div>
 </template>
 
 <style scoped>
