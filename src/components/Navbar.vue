@@ -33,7 +33,7 @@
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
             <li><router-link class="dropdown-item" to="/weekview">WeekView</router-link></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
+            <li><router-link class="dropdown-item" to="/studentcredit">StudentCredit</router-link></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="#">Something else here</a></li>
           </ul>
