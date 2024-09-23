@@ -1,4 +1,3 @@
-
 <template>
   <Navbar />
 
@@ -23,7 +22,7 @@
         </div>
         <!-- Neue Anordnung: Karussell unter der Suchleiste -->
         <div class="carousel-section">
-          <Carousel :onSelect="selectImage" />
+          <Carousel @select="selectImage" />
         </div>
       </div>
       <!-- Ausgewähltes Bild wird groß rechts angezeigt -->
@@ -62,13 +61,11 @@
       <About />
     </section>
 
-  
-   
   </div>
 </template>
 
 <script setup lang="ts">
-import Navbar from '../components/Navbar.vue'
+import Navbar from '../components/Navbar.vue';
 import Carousel from '../components/Carousel.vue';
 import Footer from '../components/Footer.vue';
 import About from '../components/About.vue';
@@ -88,6 +85,8 @@ const offers = ref([
   { id: 3, title: '25% Off', description: 'Greys Vage', image: '../assets/offer3.png' },
   { id: 4, title: '20% Off', description: 'Greys Vage', image: '../assets/offer4.png' },
 ]);
+
+
 
 const steps = ref([
   { id: 1, icon: '📍', title: 'Select Location', description: 'Choose the location of the cafeteria.' },

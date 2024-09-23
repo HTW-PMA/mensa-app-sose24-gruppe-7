@@ -35,11 +35,9 @@
             <li><router-link class="dropdown-item" to="/weekview">WeekView</router-link></li>
             <li><router-link class="dropdown-item" to="/studentcredit">StudentCredit</router-link></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
+            <li><router-link class="dropdown-item" to="/cafeteriamap">Search for Cafeteria</router-link></li>
+            <li><router-link class="dropdown-item" to="/api-test">API Test</router-link></li>
           </ul>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
         </li>
       </ul>
       <form class="d-flex me-3">
