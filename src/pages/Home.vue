@@ -1,84 +1,77 @@
 <template>
-  <Navbar />
-
-  <!-- Hauptinhalt der Seite -->
-  <div class="main-content">
-    <!-- Hero-Sektion mit Karussell und CTA -->
-    <section class="hero-section">
-      <div class="container hero-container">
-        <div class="hero-text">
+  <!-- Main Content of the Page -->
+  <div class="main-content container">
+    <!-- Hero Section as Card -->
+    <div class="card my-5">
+      <div class="card-body">
+        <section class="hero-section text-center">
           <h1>Are you starving?</h1>
           <p>Within a few clicks, find a cafeteria near you.</p>
           <h3>Search a mensa near you:</h3>
           <form class="search-form">
-            <input
-              class="form-control"
-              type="search"
-              placeholder="Enter your address"
-              aria-label="Search"
-            />
-            <button class="btn btn-primary" type="submit">Search</button>
+            <div class="input-group mb-3">
+              <input
+                class="form-control"
+                type="search"
+                placeholder="Enter your address"
+                aria-label="Search"
+              />
+              <button class="btn btn-primary" type="submit">Search</button>
+            </div>
           </form>
-        </div>
-        <!-- Neue Anordnung: Karussell unter der Suchleiste -->
-        <div class="carousel-section">
-          <Carousel @select="selectImage" />
-        </div>
+        </section>
       </div>
-      <!-- Ausgewähltes Bild wird groß rechts angezeigt -->
-      <div class="selected-image-container">
-        <img :src="selectedImage" alt="Selected Image" class="selected-image">
-      </div>
-    </section>
+    </div>
 
-    <!-- Angebote oder Features -->
-    <section class="offers-section">
-      <div class="container offers-container">
-        <div class="offer-card" v-for="offer in offers" :key="offer.id">
-          <img :src="offer.image" alt="Offer Image" class="offer-image" />
-          <div class="offer-details">
-            <h4>{{ offer.title }}</h4>
-            <p>{{ offer.description }}</p>
+    <!-- Offers or Features Section -->
+    <section class="offers-section mt-5">
+      <h2 class="text-center mb-4">Our Offers</h2>
+      <div class="row">
+        <div class="col-md-3" v-for="offer in offers" :key="offer.id">
+          <div class="card h-100">
+            <img :src="offer.image" class="card-img-top" alt="Offer Image" />
+            <div class="card-body">
+              <h5 class="card-title">{{ offer.title }}</h5>
+              <p class="card-text">{{ offer.description }}</p>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- How It Works -->
-    <section class="how-it-works">
-      <h2>How does it work?</h2>
-      <div class="container how-container">
-        <div class="step" v-for="step in steps" :key="step.id">
-          <div class="icon">{{ step.icon }}</div>
-          <h3>{{ step.title }}</h3>
-          <p>{{ step.description }}</p>
+    <!-- How It Works Section -->
+    <section class="how-it-works mt-5">
+      <h2 class="text-center mb-4">How does it work?</h2>
+      <div class="row">
+        <div class="col-md-4" v-for="step in steps" :key="step.id">
+          <div class="card h-100 feature-card">
+            <div class="card-body text-center">
+              <div class="icon display-4">{{ step.icon }}</div>
+              <h5 class="card-title mt-3">{{ step.title }}</h5>
+              <p class="card-text">{{ step.description }}</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- About Us -->
-    <section id="about" class="about-section">
-      <About />
+    <!-- About Us Section -->
+    <section id="about" class="about-section mt-5">
+      <h2 class="text-center mb-4">About Us</h2>
+      <div class="card about-card">
+        <div class="card-body text-center">
+          <h5>About Us</h5>
+          <p>We help you find the best cafeterias around with just a few clicks. Whether you're looking for a quick bite or a full meal, our platform provides you with the best options.</p>
+        </div>
+      </div>
     </section>
-
   </div>
 </template>
 
 <script setup lang="ts">
-import Navbar from '../components/Navbar.vue';
-import Carousel from '../components/Carousel.vue';
-import Footer from '../components/Footer.vue';
-import About from '../components/About.vue';
 import { ref } from 'vue';
 
-// Standardmäßig ausgewähltes Bild
-const selectedImage = ref('../assets/pic1.png');
-
-// Callback für die Bildauswahl im Karussell
-function selectImage(imageSrc: string) {
-  selectedImage.value = imageSrc;
-}
-
+// Offers
 const offers = ref([
   { id: 1, title: '15% Off', description: 'Greys Vage', image: '../assets/offer1.png' },
   { id: 2, title: '10% Off', description: 'Greys Vage', image: '../assets/offer2.png' },
@@ -86,8 +79,7 @@ const offers = ref([
   { id: 4, title: '20% Off', description: 'Greys Vage', image: '../assets/offer4.png' },
 ]);
 
-
-
+// How it Works Steps
 const steps = ref([
   { id: 1, icon: '📍', title: 'Select Location', description: 'Choose the location of the cafeteria.' },
   { id: 2, icon: '🛒', title: 'Choose Order', description: 'Check over hundreds of menus.' },
@@ -96,7 +88,7 @@ const steps = ref([
 </script>
 
 <style scoped>
-/* Globale Layout-Einstellungen */
+/* General Styling */
 .main-content {
   display: flex;
   flex-direction: column;
@@ -104,198 +96,76 @@ const steps = ref([
   justify-content: center;
 }
 
-/* Hero-Sektion Layout */
+/* Hero Section */
 .hero-section {
-  width: 100vw; /* Breite auf 100% des Viewports setzen */
-  background: linear-gradient(135deg, #44BBA4 0%, #368C7A 100%);
-  padding: 60px 20px;
-  text-align: center;
-  overflow: hidden; /* Verhindert horizontales Scrollen */
-  position: relative; /* Wichtig für die Positionierung der Inhalte */
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between; /* Platz zwischen den beiden Sektionen */
+  padding: 40px 20px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
 }
 
-.hero-container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  width: 50%; /* Container nimmt 50% des Platzes ein */
-  max-width: 600px;
-  padding: 0 20px; /* Optional: padding für etwas Abstand am Rand */
-}
-
-.hero-text {
-  max-width: 100%;
-  text-align: left;
-}
-
-.hero-text h1 {
-  font-size: 3rem;
+.hero-section h1 {
+  font-size: 2.5rem;
   margin-bottom: 20px;
-  color: white;
 }
 
-.hero-text p {
-  font-size: 1.25rem;
+.hero-section p {
+  font-size: 1.2rem;
   margin-bottom: 20px;
-  color: white;
 }
 
 .search-form {
   display: flex;
-  flex-direction: row;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.search-form .form-control {
-  padding: 10px;
-  font-size: 1rem;
-  flex: 1;
-}
-
-.search-form .btn {
-  padding: 10px;
-  font-size: 1rem;
-}
-
-/* Carousel und ausgewähltes Bild Layout */
-.carousel-section {
-  margin-top: 20px;
-}
-
-.selected-image-container {
-  width: 40%; /* Container für das Bild rechts */
-  max-width: 600px;
-  display: flex;
-  align-items: center;
   justify-content: center;
 }
 
-.selected-image {
-  width: 100%;
-  max-height: 500px;
-  object-fit: cover;
-  border-radius: 20px; /* Optional: Abrundung der Ecken */
+.search-form .input-group {
+  max-width: 600px;
 }
 
-/* Angebote oder Features */
+/* Offers Section */
 .offers-section {
-  background-color: #ffffff;
-  padding: 60px 20px;
-  text-align: center;
+  padding: 40px 0;
 }
 
-.offers-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  max-width: 1200px;
-}
-
-.offer-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  overflow: hidden;
-  text-align: left;
-}
-
-.offer-image {
-  width: 100%;
-  height: 150px;
+.card-img-top {
+  height: 200px;
   object-fit: cover;
-}
-
-.offer-details {
-  padding: 15px;
 }
 
 /* How It Works Section */
 .how-it-works {
-  background-color: #f4f4f4;
-  padding: 60px 20px;
-  text-align: center;
+  background-color: #ffffff; /* Set background of the section to white */
+  padding: 40px 0;
 }
 
-.how-container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  max-width: 1200px;
+.feature-card {
+  background-color: #f4f4f4; /* Set individual cards to light gray */
+  border: none; /* Remove border to make the gray background look smooth */
+  border-radius: 10px; /* Optional: Slightly round the card edges */
 }
 
-.step {
-  text-align: center;
+.icon {
+  font-size: 2.5rem;
+  color: #007bff;
 }
 
-.step .icon {
-  font-size: 2rem;
-  margin-bottom: 10px;
-}
-
-.step h3 {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
+.step .card-body {
+  padding: 20px;
 }
 
 /* About Us Section */
 .about-section {
-  background-color: #ffffff;
-  padding: 60px 20px;
-  width: 100%;
-  text-align: center;
+  background-color: #ffffff; /* Set section background to white */
+  padding: 40px 0;
 }
 
-/* Footer Section */
-footer {
-  width: 100vw; /* Breite auf 100% des Viewports setzen */
-  background-color: #333;
-  color: white;
-  padding: 40px 20px;
-  text-align: center;
-  overflow: hidden; /* Verhindert horizontales Scrollen */
-  position: relative; /* Wichtig für die Positionierung der Inhalte */
-  min-height: 100px; /* Minimale Höhe für den Footer */
-  flex-shrink: 0; /* Verhindert, dass der Footer schrumpft */
+.about-card {
+  background-color: #f4f4f4; /* Set the card to light gray */
+  border: none; /* Remove the card border */
+  border-radius: 10px; /* Slightly round the card edges */
 }
 
-/* Falls der Footer den gesamten unteren Bereich einnehmen soll */
-footer.full-height {
-  height: 100vh; /* Nimmt die gesamte Höhe des Viewports ein */
+.about-card .card-body {
+  padding: 30px;
 }
-
-/* Media Queries für responsives Design */
-@media (max-width: 768px) {
-  .hero-section {
-    flex-direction: column;
-  }
-
-  .hero-container {
-    width: 100%;
-    max-width: 100%;
-    text-align: center;
-  }
-
-  .selected-image-container {
-    width: 100%;
-    margin-top: 20px;
-  }
-
-  .selected-image {
-    max-height: 300px;
-  }
-
-  .offers-container {
-    grid-template-columns: 1fr;
-  }
-
-  .how-container {
-    grid-template-columns: 1fr;
-  }
-}
-
-
 </style>
