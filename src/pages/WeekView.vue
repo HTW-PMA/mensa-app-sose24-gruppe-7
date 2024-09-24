@@ -6,7 +6,7 @@ import Legend from '../components/Legend.vue';
 export default {
   name: 'GetMensas',
   components: {
-    Legend,  // Register the Legend component here
+    Legend, // Register the Legend component here
   },
   data() {
     return {
@@ -27,23 +27,52 @@ export default {
     filteredPrices() {
       const selectedRole = localStorage.getItem('selectedRole') || 'Studierende';
       return (meal: Meal) => {
-        return meal.prices.filter((priceItem: { priceType: string; }) => priceItem.priceType === selectedRole);
+        return meal.prices.filter((priceItem: { priceType: string }) => priceItem.priceType === selectedRole);
       };
     },
     filteredMeals() {
       if (this.selectedCategory === 'ALLES') {
         return this.selectedMenu; // Show all meals when 'ALLES' is selected
       }
-      return this.selectedMenu.filter(meal => meal.category.toUpperCase() === this.selectedCategory);
+      return this.selectedMenu.filter((meal) => meal.category.toUpperCase() === this.selectedCategory);
     },
   },
   methods: {
+    getCategoryStyle(category: string): { type: string; showText: boolean } {
+    let type = 'default';
+    let showText = true;
+
+    switch (category.toUpperCase()) {
+      case 'SALATE':
+        type = 'salad';
+        break;
+      case 'SUPPEN':
+        type = 'soup';
+        break;
+      case 'ESSEN':
+      case 'HAUPTGERICHTE':
+        type = 'main-dish';
+        break;
+      case 'BEILAGEN':
+        type = 'side-dish';
+        break;
+      case 'DESSERTS':
+        type = 'dessert';
+        break;
+      default:
+        type = 'default'; // Fallback style if the category doesn't match
+    }
+
+    return { type, showText };
+  },
+
     toggleLegend() {
       this.isLegendVisible = !this.isLegendVisible; // Toggle the legend visibility
     },
     fetchCanteens() {
-      apiService.getMensen()
-        .then((response) => { 
+      apiService
+        .getMensen()
+        .then((response) => {
           this.canteens = response;
         })
         .catch((error: any) => {
@@ -51,12 +80,18 @@ export default {
         });
     },
     fetchMeals(canteenId: string) {
-      const startDate = new Date().toLocaleDateString('en-CA', { year: 'numeric', day: '2-digit', month: '2-digit' }).replace(/\//g, '-');
+      const startDate = new Date()
+        .toLocaleDateString('en-CA', {
+          year: 'numeric',
+          day: '2-digit',
+          month: '2-digit',
+        })
+        .replace(/\//g, '-');
 
-      apiService.getAllMealsFromCanteenFromDay(canteenId, startDate)
-        .then((response: Meal[]) => { 
+      apiService
+        .getAllMealsFromCanteenFromDay(canteenId, startDate)
+        .then((response: Meal[]) => {
           this.meals = response;
-          console.log(this.meals[0]);
         })
         .catch((error: any) => {
           console.error(error);
@@ -98,14 +133,14 @@ export default {
 
       try {
         const meals: Meal[] = await apiService.getAllMealsFromCanteenFromDay(this.canteenId, targetDate);
-        
+
         // Filter meals based on diet preferences
         const dietPreferencesMeat = localStorage.getItem('dietPreferencesMeat') === 'true';
         const dietPreferencesVegan = localStorage.getItem('dietPreferencesVegan') === 'true';
         const dietPreferencesVegetarian = localStorage.getItem('dietPreferencesVegetarian') === 'true';
 
-        this.selectedMenu = meals.filter(meal => {
-          const badges = meal.badges.map(badgeId => this.getBadgeName(badgeId).type);
+        this.selectedMenu = meals.filter((meal) => {
+          const badges = meal.badges.map((badgeId) => this.getBadgeName(badgeId).type);
           if (dietPreferencesMeat) {
             return true;
           }
@@ -128,7 +163,8 @@ export default {
       }
     },
     fetchBadges() {
-      apiService.getBadges()
+      apiService
+        .getBadges()
         .then((badges: Badges) => {
           this.badges = badges;
         })
@@ -136,8 +172,24 @@ export default {
           console.error(error);
         });
     },
+    getImageForCategory(category: string): string {
+      switch (category.toUpperCase()) {
+        case 'SALATE':
+          return new URL('@/assets/salad.jpg', import.meta.url).href;
+        case 'ESSEN':
+          return new URL('@/assets/main_dish.jpg', import.meta.url).href;
+        case 'BEILAGEN':
+          return new URL('@/assets/side_dish.jpg', import.meta.url).href;
+        case 'DESSERTS':
+          return new URL('@/assets/dessert.jpg', import.meta.url).href;
+        case 'SUPPEN':
+          return new URL('@/assets/soup.jpg', import.meta.url).href;
+        default:
+          return new URL('@/assets/default.jpg', import.meta.url).href; // Fallback image
+      }
+    },
     getBadgeName(badgeId: string): { name: string; type: string; showText: boolean } {
-      const badge = this.badges.find(b => b.id === badgeId);
+      const badge = this.badges.find((b) => b.id === badgeId);
       const name = badge ? badge.name : 'Unknown Badge';
       let type = 'default';
       let showText = true;
@@ -182,40 +234,13 @@ export default {
 
       return { name, type, showText };
     },
-    getBadgeDescription(badgeId: string): string {
-      const badge = this.badges.find(b => b.id === badgeId);
-      return badge && badge.description ? ` ${badge.description}` : '';
-    },
-    getCategoryStyle(category: string): { type: string; showText: boolean } {
-      let type = 'default';
-      let showText = true;
-
-      switch (category.toUpperCase()) {
-        case 'SALATE':
-          type = 'salad';
-          break;
-        case 'SUPPEN':
-          type = 'soup';
-          break;
-        case 'ESSEN':
-        case 'HAUPTGERICHTE':
-          type = 'main-dish';
-          break;
-        case 'BEILAGEN':
-          type = 'side-dish';
-          break;
-        case 'DESSERTS':
-          type = 'dessert';
-          break;
+    getAdditiveText(additiveId: string): string {
+      for (const additive of this.additives) {
+        if (additive.id === additiveId) {
+          return additive.text;
+        }
       }
-
-      return { type, showText };
-    },
-    scrollToDay(dayOffset: number) {
-      const dayElement = this.$el.querySelectorAll('.day')[dayOffset];
-      if (dayElement) {
-        dayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+      return '';
     },
     toggleFavorite(mealId: string) {
       const index = this.favoriteMeals.indexOf(mealId);
@@ -232,21 +257,18 @@ export default {
     selectCategory(category: string) {
       this.selectedCategory = category;
     },
+    scrollToDay(dayOffset: number) {
+      const dayElements = this.$refs.dayElements as HTMLElement[];
+      if (dayElements && dayElements[dayOffset]) {
+        dayElements[dayOffset].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    },
     async fetchAdditives() {
       try {
         this.additives = await apiService.getAdditives();
       } catch (error) {
         console.error('Error fetching additives:', error);
       }
-    },
-    getAdditiveText(additiveId: string): string {
-      for (const additive of this.additives) {
-        console.log(additive);
-        if (additive.id === additiveId) {
-          return additive.text;
-        }
-      }
-      return '';
     },
   },
   created() {
@@ -280,8 +302,14 @@ export default {
       <div class="col">
         <div class="days-container text-center">
           <div class="days">
-            <div v-for="(day, index) in daysOfWeek" :key="day" class="day"
-              :class="{ selected: isSelectedDay(index) }" @click="handleDayClick(index)">
+            <div
+              v-for="(day, index) in daysOfWeek"
+              :key="day"
+              ref="dayElements"
+              class="day"
+              :class="{ selected: isSelectedDay(index) }"
+              @click="handleDayClick(index)"
+            >
               <p class="day-name">{{ day.toUpperCase() }}</p>
               <p class="date">{{ formatDate(getDateForDay(index)) }}</p>
             </div>
@@ -297,9 +325,12 @@ export default {
 
     <!-- Category filter buttons -->
     <div class="category-filters text-center my-2">
-      <button v-for="category in ['ALLES', 'SALATE', 'ESSEN', 'BEILAGEN', 'DESSERTS']" :key="category"
+      <button
+        v-for="category in ['ALLES', 'SALATE', 'ESSEN', 'BEILAGEN', 'DESSERTS']"
+        :key="category"
         :class="['btn', 'btn-outline-primary', 'btn-sm', { active: selectedCategory === category }]"
-        @click="selectCategory(category)">
+        @click="selectCategory(category)"
+      >
         {{ category }}
       </button>
     </div>
@@ -318,7 +349,10 @@ export default {
           <ul class="menu-list container">
             <li v-for="meal in filteredMeals" :key="meal.id" class="menu-item">
               <div class="card">
-                <div class="card-body">
+                <div class="card-body d-flex">
+                  <!-- Image based on meal category -->
+                  <img :src="getImageForCategory(meal.category)" alt="Meal Image" class="menu-img" />
+
                   <div class="menu-description">
                     <div class="dish-header">
                       <div class="meal-header">
@@ -331,8 +365,11 @@ export default {
                       <!-- Badges and category -->
                       <div class="badges-wrapper">
                         <div class="badges">
-                          <span v-for="badgeId in meal.badges" :key="badgeId"
-                            :class="['badge', 'badge-item', `${getBadgeName(badgeId).type}-badge`]">
+                          <span
+                            v-for="badgeId in meal.badges"
+                            :key="badgeId"
+                            :class="['badge', 'badge-item', `${getBadgeName(badgeId).type}-badge`]"
+                          >
                             <span v-if="getBadgeName(badgeId).showText">{{ getBadgeName(badgeId).name }}</span>
                           </span>
                           <span :class="['badge', 'category-badge', `${getCategoryStyle(meal.category).type}-badge`]">
@@ -343,7 +380,7 @@ export default {
                       <!-- Prices and additives -->
                       <div class="menu-description">
                         <p class="additives-info">
-                          Allergene: 
+                          Allergene:
                           <span v-for="additiveId in meal.additives" :key="additiveId" class="additive">
                             {{ getAdditiveText(additiveId) }}
                           </span>
@@ -371,19 +408,12 @@ export default {
   </div>
 </template>
 
-
-
 <style scoped>
 /* Style updates for active category button */
 .category-filters button.active {
   background-color: #007bff;
   color: white;
 }
-</style>
-
-
-<style scoped>
-
 
 .menu-container {
   display: flex;
@@ -399,10 +429,9 @@ export default {
   flex: 1;
 }
 
-/* Legend sliding panel */
 .legend-panel {
   position: fixed;
-  right: -300px; /* Hidden off the screen initially */
+  right: -300px;
   top: 0;
   bottom: 0;
   width: 250px;
@@ -416,7 +445,7 @@ export default {
 }
 
 .legend-panel.visible {
-  right: 0; /* Slides in when the panel is visible */
+  right: 0;
 }
 
 .toggle-legend-btn {
@@ -456,12 +485,12 @@ export default {
   width: 100%;
   overflow-x: auto;
   white-space: nowrap;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE 10+ */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .days::-webkit-scrollbar {
-  display: none; /* WebKit */
+  display: none;
 }
 
 .arrow-button {
@@ -473,7 +502,7 @@ export default {
   padding: 10px;
   border-radius: 50%;
   transition: background-color 0.3s ease;
-  flex-shrink: 0; /* Prevent shrinking */
+  flex-shrink: 0;
 }
 
 .arrow-button:hover {
@@ -602,7 +631,7 @@ li {
   align-items: center;
 }
 
-.meal-name {  
+.meal-name {
   display: inline-block;
 }
 
@@ -776,18 +805,21 @@ li {
   text-transform: uppercase;
 }
 
-.co2-a-badge, .h2o-a-badge {
-  background-color: #4CAF50; /* Green */
+.co2-a-badge,
+.h2o-a-badge {
+  background-color: #4CAF50;
   color: white;
 }
 
-.co2-b-badge, .h2o-b-badge {
-  background-color: #FFC107; /* Amber */
+.co2-b-badge,
+.h2o-b-badge {
+  background-color: #FFC107;
   color: black;
 }
 
-.co2-c-badge, .h2o-c-badge {
-  background-color: #F44336; /* Red */
+.co2-c-badge,
+.h2o-c-badge {
+  background-color: #F44336;
   color: white;
 }
 
@@ -795,7 +827,7 @@ li {
   overflow-x: auto;
   white-space: nowrap;
   width: 100%;
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
@@ -874,6 +906,4 @@ li {
     flex-grow: 0;
   }
 }
-
-
 </style>
