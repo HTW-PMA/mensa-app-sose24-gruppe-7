@@ -1,9 +1,13 @@
 <script lang="ts">
 import apiService from '../services/apiService';
 import { Mensa, Meal, Badges, Additive } from '../services/apiServiceTypes';
+import Legend from '../components/Legend.vue';
 
 export default {
   name: 'GetMensas',
+  components: {
+    Legend,  // Register the Legend component here
+  },
   data() {
     return {
       canteens: [] as Mensa[],
@@ -14,8 +18,9 @@ export default {
       selectedMenu: [] as Meal[],
       canteenId: localStorage.getItem('selectedMensa') || '655ff175136d3b580c970f80',
       favoriteMeals: JSON.parse(localStorage.getItem('favoriteMeals') || '[]') as string[],
-      selectedCategory: 'ALL', // Add a new data property for the selected category
+      selectedCategory: 'ALLES', // Set 'ALLES' as default selected category
       additives: [] as Additive[],
+      isLegendVisible: false, // New data property for controlling sidebar visibility
     };
   },
   computed: {
@@ -27,12 +32,15 @@ export default {
     },
     filteredMeals() {
       if (this.selectedCategory === 'ALLES') {
-        return this.selectedMenu;
+        return this.selectedMenu; // Show all meals when 'ALLES' is selected
       }
       return this.selectedMenu.filter(meal => meal.category.toUpperCase() === this.selectedCategory);
     },
   },
   methods: {
+    toggleLegend() {
+      this.isLegendVisible = !this.isLegendVisible; // Toggle the legend visibility
+    },
     fetchCanteens() {
       apiService.getMensen()
         .then((response) => { 
@@ -261,103 +269,170 @@ export default {
 };
 </script>
 
-
-
 <template>
-  <div class="menu-container container">
-    <div class="navigation">
-      <button id="prev" class="arrow-button" @click="changeDay(-1)">
-        <span class="arrow">←</span>
-      </button>
-      <div class="days-container">
-        <div class="days">
-          <div v-for="(day, index) in daysOfWeek" :key="day" class="day" :class="{ selected: isSelectedDay(index) }"
-            @click="handleDayClick(index)">
-            <p class="day-name">{{ day.toUpperCase() }}</p>
-            <p class="date">{{ formatDate(getDateForDay(index)) }}</p>
+  <div class="container">
+    <div class="navigation row my-3">
+      <div class="col-auto">
+        <button id="prev" class="arrow-button btn btn-primary btn-sm" @click="changeDay(-1)">
+          <span class="arrow">←</span>
+        </button>
+      </div>
+      <div class="col">
+        <div class="days-container text-center">
+          <div class="days">
+            <div v-for="(day, index) in daysOfWeek" :key="day" class="day"
+              :class="{ selected: isSelectedDay(index) }" @click="handleDayClick(index)">
+              <p class="day-name">{{ day.toUpperCase() }}</p>
+              <p class="date">{{ formatDate(getDateForDay(index)) }}</p>
+            </div>
           </div>
         </div>
       </div>
-      <button id="next" class="arrow-button" @click="changeDay(1)">
-        <span class="arrow">→</span>
-      </button>
+      <div class="col-auto">
+        <button id="next" class="arrow-button btn btn-primary btn-sm" @click="changeDay(1)">
+          <span class="arrow">→</span>
+        </button>
+      </div>
     </div>
 
     <!-- Category filter buttons -->
-    <div class="category-filters">
+    <div class="category-filters text-center my-2">
       <button v-for="category in ['ALLES', 'SALATE', 'ESSEN', 'BEILAGEN', 'DESSERTS']" :key="category"
-        :class="{ active: selectedCategory === category }" @click="selectCategory(category)">
+        :class="['btn', 'btn-outline-primary', 'btn-sm', { active: selectedCategory === category }]"
+        @click="selectCategory(category)">
         {{ category }}
       </button>
     </div>
 
-    <div class="content">
-      <!-- Page content goes here -->
+    <!-- Button to toggle the legend -->
+    <div class="text-center mb-3">
+      <button class="btn btn-info btn-sm" @click="toggleLegend">
+        {{ isLegendVisible ? 'Hide Legend' : 'Show Legend' }}
+      </button>
     </div>
 
-    <!-- Menu for the selected day -->
-    <div class="menu container">
-      <ul class="menu-list container">
-        <li v-for="meal in filteredMeals" :key="meal.id" class="menu-item">
-          <div class="card">
-            <div class="card-body">
-              <!-- Mock image for now -->
-              <!-- <img :src="meal.image || 'https://via.placeholder.com/100'" alt="Dish Image" class="menu-img"> -->
-              <div class="menu-description">
-                <div class="dish-header">
-                  <div class="meal-header">
-                    <h4 class="meal-title">
-                      {{ meal.name }}
-                    </h4>
-                    <button @click.stop="toggleFavorite(meal.id)" class="favorite-button">
-                      <span v-if="isFavorite(meal.id)">★</span>
-                      <span v-else>☆</span>
-                    </button>
-                  </div>
-                  <!-- Move badges-wrapper here -->
-                  <div class="badges-wrapper">
-                    <div class="badges">
-                      <span v-for="badgeId in meal.badges" :key="badgeId"
-                        :class="['badge', 'badge-item', `${getBadgeName(badgeId).type}-badge`]">
-                        <span v-if="getBadgeName(badgeId).showText">{{ getBadgeName(badgeId).name }}</span>
-                      </span>
-                      <span :class="['badge', 'category-badge', `${getCategoryStyle(meal.category).type}-badge`]">
-                        {{ meal.category }}
-                      </span>
-                    </div>
-                  </div>
+    <!-- Content and legend layout using Bootstrap grid -->
+    <div class="row">
+      <div class="col-lg-9">
+        <div class="menu container">
+          <ul class="menu-list container">
+            <li v-for="meal in filteredMeals" :key="meal.id" class="menu-item">
+              <div class="card">
+                <div class="card-body">
                   <div class="menu-description">
-                    <p class="badge-descriptions">
-                      <template v-for="badgeId in meal.badges" :key="badgeId">
-                        {{ getBadgeDescription(badgeId) }}
-                      </template>
-                    </p>
-                    <!-- Add additives information -->
-                    <p class="additives-info">
-                      Allergene: 
-                      <span v-for="additiveId in meal.additives" :key="additiveId" class="additive">
-                        {{ getAdditiveText(additiveId) }}
-                      </span>
-                    </p>
-                  </div>
-                  <!-- Prices -->
-                  <div class="prices">
-                    <span v-for="priceItem in filteredPrices(meal)" :key="priceItem.priceType" class="price">
-                      {{ priceItem.priceType }}: {{ priceItem.price.toFixed(2) }}€
-                    </span>
+                    <div class="dish-header">
+                      <div class="meal-header">
+                        <h4 class="meal-title">{{ meal.name }}</h4>
+                        <button @click.stop="toggleFavorite(meal.id)" class="favorite-button btn btn-link btn-sm">
+                          <span v-if="isFavorite(meal.id)">★</span>
+                          <span v-else>☆</span>
+                        </button>
+                      </div>
+                      <!-- Badges and category -->
+                      <div class="badges-wrapper">
+                        <div class="badges">
+                          <span v-for="badgeId in meal.badges" :key="badgeId"
+                            :class="['badge', 'badge-item', `${getBadgeName(badgeId).type}-badge`]">
+                            <span v-if="getBadgeName(badgeId).showText">{{ getBadgeName(badgeId).name }}</span>
+                          </span>
+                          <span :class="['badge', 'category-badge', `${getCategoryStyle(meal.category).type}-badge`]">
+                            {{ meal.category }}
+                          </span>
+                        </div>
+                      </div>
+                      <!-- Prices and additives -->
+                      <div class="menu-description">
+                        <p class="additives-info">
+                          Allergene: 
+                          <span v-for="additiveId in meal.additives" :key="additiveId" class="additive">
+                            {{ getAdditiveText(additiveId) }}
+                          </span>
+                        </p>
+                        <div class="prices">
+                          <span v-for="priceItem in filteredPrices(meal)" :key="priceItem.priceType" class="price">
+                            {{ priceItem.priceType }}: {{ priceItem.price.toFixed(2) }}€
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </li>
-      </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Legend component in a Bootstrap column -->
+      <div v-if="isLegendVisible" class="col-lg-3">
+        <Legend />
+      </div>
     </div>
   </div>
 </template>
 
+
+
+<style scoped>
+/* Style updates for active category button */
+.category-filters button.active {
+  background-color: #007bff;
+  color: white;
+}
+</style>
+
+
 <style scoped>
 
+
+.menu-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.content-area {
+  display: flex;
+  position: relative;
+}
+
+.menu-list-container {
+  flex: 1;
+}
+
+/* Legend sliding panel */
+.legend-panel {
+  position: fixed;
+  right: -300px; /* Hidden off the screen initially */
+  top: 0;
+  bottom: 0;
+  width: 250px;
+  transition: right 0.3s ease;
+  padding: 10px;
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.legend-panel.visible {
+  right: 0; /* Slides in when the panel is visible */
+}
+
+.toggle-legend-btn {
+  margin: 10px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-legend-btn:hover {
+  background-color: #0056b3;
+}
 
 .navigation {
   display: flex;
@@ -377,16 +452,16 @@ export default {
 
 .days {
   display: flex;
-  justify-content: center; /* Center the days */
+  justify-content: center;
   width: 100%;
   overflow-x: auto;
   white-space: nowrap;
   scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  -ms-overflow-style: none; /* IE 10+ */
 }
 
 .days::-webkit-scrollbar {
-  display: none; 
+  display: none; /* WebKit */
 }
 
 .arrow-button {
@@ -399,11 +474,10 @@ export default {
   border-radius: 50%;
   transition: background-color 0.3s ease;
   flex-shrink: 0; /* Prevent shrinking */
-  
+}
 
 .arrow-button:hover {
   background-color: #0056b3;
-}
 }
 
 .day {
@@ -423,27 +497,27 @@ export default {
 }
 
 .selected {
-  color: white; /* Ensure text color is white */
+  color: white;
   font-weight: bold;
   background-color: #007bff;
 }
 
 .selected .date {
-  color: white; /* Ensure date color is white */
+  color: white;
 }
 
 .date {
-  font-size: 0.9rem; /* Adjusted font size */
+  font-size: 0.9rem;
   color: gray;
 }
 
 .day-name {
-  font-size: 1rem; /* Adjusted font size */
+  font-size: 1rem;
   margin-bottom: 5px;
 }
 
 .content {
-  margin-top: 20px; /* Add margin to push content below the navbar */
+  margin-top: 20px;
 }
 
 .menu {
@@ -451,9 +525,9 @@ export default {
   border: 1px solid #ddd;
   padding: 20px;
   border-radius: 8px;
-  width: 100%; /* Ensure the menu takes full width */
-  max-width: 800px; /* Set a max-width to center the menu */
-  margin: 0 auto; /* Center the menu horizontally */
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 ul {
@@ -492,29 +566,29 @@ li {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  white-space: normal; /* Allow text to wrap */
-  word-wrap: break-word; /* Break long words if necessary */
+  white-space: normal;
+  word-wrap: break-word;
   overflow-y: auto;
   max-height: 150px;
 }
 
 .badge-descriptions {
-  white-space: pre-wrap; /* Preserve spaces and line breaks, but allow wrapping */
-  word-wrap: break-word; /* Break long words if necessary */
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 .additives-info {
   font-size: 0.9rem;
   color: #666;
   margin-top: 5px;
-  white-space: normal; /* Allow text to wrap */
-  word-wrap: break-word; /* Break long words if necessary */
+  white-space: normal;
+  word-wrap: break-word;
 }
 
 .additive {
   display: inline-block;
   margin-right: 5px;
-  margin-bottom: 5px; /* Add some bottom margin for wrapped items */
+  margin-bottom: 5px;
   padding: 2px 5px;
   background-color: #f0f0f0;
   border-radius: 3px;
@@ -522,20 +596,20 @@ li {
 }
 
 .scrollable-container {
-  overflow-x: auto; /* Enable horizontal scrolling */
-  white-space: nowrap; /* Prevent text from wrapping */
-  display: flex; /* Use flexbox to align items */
-  align-items: center; /* Center items vertically */
+  overflow-x: auto;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
 }
 
 .meal-name {  
-  display: inline-block; /* Ensure the meal name is inline for scrolling */
+  display: inline-block;
 }
 
 .dish-header {
   display: flex;
-  flex-direction: column; /* Stack children vertically */
-  align-items: flex-start; /* Align children to the start of the container */
+  flex-direction: column;
+  align-items: flex-start;
   width: 100%;
 }
 
@@ -556,7 +630,7 @@ li {
   display: flex;
   gap: 8px;
   margin-left: auto;
-  margin-right: aut; /* Add some space between the meal name and badges */
+  margin-right: auto;
 }
 
 .badge {
@@ -571,8 +645,6 @@ li {
   background-color: #007bff;
   color: white;
 }
-
-
 
 .menu-list {
   display: flex;
@@ -592,27 +664,27 @@ li {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   overflow: hidden;
-  height: auto; /* Allow the card to expand */
+  height: auto;
   display: flex;
   flex-direction: column;
 }
 
 .card-body {
-  flex-grow: 1; /* Allow the card body to grow */
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
 }
 
 .menu-description {
-  flex-grow: 1; /* Allow the description to grow */
+  flex-grow: 1;
   text-align: left;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* Align content to the top */
+  justify-content: flex-start;
   white-space: normal;
   word-wrap: break-word;
-  overflow-y: visible; /* Remove scroll, allow content to expand */
-  max-height: none; /* Remove max-height restriction */
+  overflow-y: visible;
+  max-height: none;
 }
 
 .vegan-badge {
@@ -629,7 +701,6 @@ li {
   background-color: #f0f0f0;
   color: #333;
 }
-
 
 .green-dot-badge::before,
 .yellow-dot-badge::before,
@@ -665,36 +736,31 @@ li {
 
 .salad-badge {
   background-color: #4CAF50;
-  /* Green */
   color: white;
 }
 
 .soup-badge {
   background-color: #FF9800;
-  /* Orange */
   color: white;
 }
 
 .main-dish-badge {
   background-color: #2196F3;
-  /* Blue */
   color: white;
 }
 
 .side-dish-badge {
   background-color: #9C27B0;
-  /* Purple */
   color: white;
 }
 
 .dessert-badge {
   background-color: #E91E63;
-  /* Pink */
   color: white;
 }
+
 .default-badge {
   background-color: #E91E63;
-  /* Pink */
   color: white;
 }
 
@@ -703,7 +769,6 @@ li {
 }
 
 .category-badge {
-  /* General styles for category badges */
   padding: 4px 8px;
   border-radius: 16px;
   font-size: 0.8rem;
@@ -726,27 +791,12 @@ li {
   color: white;
 }
 
-.co2-a-badge, .h2o-a-badge {
-  background-color: #4CAF50; /* Green */
-  color: white;
-}
-
-.co2-b-badge, .h2o-b-badge {
-  background-color: #FFC107; /* Amber */
-  color: black;
-}
-
-.co2-c-badge, .h2o-c-badge {
-  background-color: #F44336; /* Red */
-  color: white;
-}
-
 .badges-wrapper {
   overflow-x: auto;
   white-space: nowrap;
   width: 100%;
   scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  -ms-overflow-style: none;
 }
 
 .badges {
@@ -754,14 +804,13 @@ li {
   gap: 8px;
 }
 
-/* Hide scrollbar for Webkit browsers (Chrome, Safari) */
 .badges-wrapper::-webkit-scrollbar {
   display: none;
 }
 
 .prices {
-  margin-top: 10px; /* Add some space between the description and prices */
-  height: auto; /* Ensure the height adjusts to its content */
+  margin-top: 10px;
+  height: auto;
 }
 
 /* Responsive styles */
@@ -772,7 +821,7 @@ li {
   }
 
   .day-name {
-    font-size: 0.9rem; /* Adjusted font size for mobile */
+    font-size: 0.9rem;
   }
 
   .date {
@@ -793,21 +842,21 @@ li {
   display: flex;
   justify-content: center;
   margin: 10px 0;
-  flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
-  gap: 5px; /* Add gap between buttons */
+  flex-wrap: wrap;
+  gap: 5px;
 }
 
 .category-filters button {
   background-color: #f8f9fa;
   border: 1px solid #ddd;
-  padding: 8px 12px; /* Reduce padding for smaller screens */
+  padding: 8px 12px;
   cursor: pointer;
   transition: background-color 0.3s ease;
   border-radius: 8px;
-  font-size: 0.9rem; /* Slightly reduce font size */
-  white-space: nowrap; /* Prevent text from wrapping inside buttons */
-  flex-grow: 1; /* Allow buttons to grow and fill available space */
-  max-width: calc(50% - 5px); /* Set max-width to 50% minus gap for 2 columns on very small screens */
+  font-size: 0.9rem;
+  white-space: nowrap;
+  flex-grow: 1;
+  max-width: calc(50% - 5px);
 }
 
 .category-filters button.active {
@@ -819,89 +868,12 @@ li {
   background-color: #e9ecef;
 }
 
-/* Media query for larger mobile devices and tablets */
 @media (min-width: 480px) {
   .category-filters button {
-    max-width: none; /* Remove max-width constraint */
-    flex-grow: 0; /* Don't allow buttons to grow */
+    max-width: none;
+    flex-grow: 0;
   }
 }
 
-.category-filters button {
-  background-color: #f8f9fa;
-  border: 1px solid #ddd;
-  padding: 8px 12px; /* Reduce padding for smaller screens */
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  border-radius: 8px;
-  font-size: 0.9rem; /* Slightly reduce font size */
-  white-space: nowrap; /* Prevent text from wrapping inside buttons */
-  flex-grow: 1; /* Allow buttons to grow and fill available space */
-  max-width: calc(50% - 5px); /* Set max-width to 50% minus gap for 2 columns on very small screens */
-}
 
-.category-filters button.active {
-  background-color: #007bff;
-  color: white;
-}
-
-.category-filters button:hover {
-  background-color: #e9ecef;
-}
-
-/* Media query for larger mobile devices and tablets */
-@media (min-width: 480px) {
-  .category-filters button {
-    max-width: none; /* Remove max-width constraint */
-    flex-grow: 0; /* Don't allow buttons to grow */
-  }
-}
-
-.meal-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.meal-title {
-  margin: 0;
-  flex-grow: 1;
-}
-
-.favorite-button {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: gold;
-  padding: 0;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-.meal-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.meal-title {
-  margin: 0;
-  flex-grow: 1;
-}
-
-.favorite-button {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: gold;
-  padding: 0;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-.category-filters button:hover {
-  background-color: #e9ecef;
-}
 </style>
