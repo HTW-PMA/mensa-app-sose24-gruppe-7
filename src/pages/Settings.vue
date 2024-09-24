@@ -57,7 +57,7 @@
         </div>
 
         <!-- Save Button -->
-        <button class="btn btn-success mt-3">Speichern</button>
+        <button class="btn btn-success mt-3" @click="saveSelection">Speichern</button>
       </div>
     </div>
 
@@ -70,7 +70,7 @@
         <h5 class="card-title">Kontostand: {{ balance }} €</h5>
 
         <!-- Form for entering the initial balance -->
-        <div v-if="initialBalanceNotSet">
+        <div v-if="shouldShowInitialBalanceInput">
           <p class="card-text">Bitte geben Sie Ihren aktuellen Mensakartenguthaben ein:</p>
           <input v-model.number="initialBalance" type="number" class="form-control" placeholder="Guthaben eingeben (z.B. 200)">
           <button @click="setInitialBalance" class="btn btn-primary mt-3">Bestätigen</button>
@@ -94,35 +94,45 @@
 </template>
 
 
+
 <script>
 import canteens from '../../canteen.json'; 
 
 export default {
   data() {
     return {
-      selectedRole: 'Studierende',
-      selectedUniversity: '',
-      selectedMensa: '', 
+      selectedRole: localStorage.getItem('selectedRole') || 'Studierende',  // Load role from Local Storage 
+      selectedUniversity: localStorage.getItem('selectedUniversity') || '',  // Load universities from Local Storage
+      selectedMensa: localStorage.getItem('selectedMensa') || '',  // Load canteens from Local Storage
       universities: [], 
       mensas: [], 
       allMensas: [], 
       dietPreferences: {
-        meat: false,
-        vegetarian: false,
-        vegan: false
+        meat: localStorage.getItem('dietPreferencesMeat') !== null ? JSON.parse(localStorage.getItem('dietPreferencesMeat')) : false,
+        vegetarian: localStorage.getItem('dietPreferencesVegetarian') !== null ? JSON.parse(localStorage.getItem('dietPreferencesVegetarian')) : false,
+        vegan: localStorage.getItem('dietPreferencesVegan') !== null ? JSON.parse(localStorage.getItem('dietPreferencesVegan')) : false
       },
-      balance: 0,
-      initialBalance: 0,
+      balance: parseFloat(localStorage.getItem('selectedBalance')) || 0,  // Load balance from Local Storage
       transactionAmount: 0,
-      initialBalanceNotSet: true,
       currentTime: new Date().toLocaleTimeString()
     };
   },
   methods: {
+    saveSelection() {
+      // Save selection in Local Storage
+      localStorage.setItem('selectedRole', this.selectedRole);
+      localStorage.setItem('selectedUniversity', this.selectedUniversity);
+      localStorage.setItem('selectedMensa', this.selectedMensa);
+      localStorage.setItem('selectedBalance', this.balance);
+
+      // Save preferences in Local Storage
+      localStorage.setItem('dietPreferencesMeat', JSON.stringify(this.dietPreferences.meat));
+      localStorage.setItem('dietPreferencesVegetarian', JSON.stringify(this.dietPreferences.vegetarian));
+      localStorage.setItem('dietPreferencesVegan', JSON.stringify(this.dietPreferences.vegan));
+    },
     setInitialBalance() {
-      if (this.initialBalance >= 0) {
-        this.balance = this.initialBalance;
-        this.initialBalanceNotSet = false;
+      if (this.balance >= 0) {
+        this.saveSelection(); // Save balance
       } else {
         alert('Das Guthaben darf nicht negativ sein');
       }
@@ -130,6 +140,7 @@ export default {
     addMoney() {
       if (this.transactionAmount > 0) {
         this.balance += this.transactionAmount;
+        this.saveSelection(); // Save balance
       } else {
         alert('Bitte einen gültigen Betrag eingeben');
       }
@@ -137,39 +148,64 @@ export default {
     deductMoney() {
       if (this.transactionAmount > 0 && this.transactionAmount <= this.balance) {
         this.balance -= this.transactionAmount;
+        this.saveSelection(); // Save balance
       } else {
         alert('Bitte einen gültigen Betrag eingeben');
       }
-    },
-    getSelectedRole() {
-      return this.selectedRole;
     },
     findNearestCafeteria() {
       alert('Nächste Mensa wird gesucht...');
     },
     extractData() {
-      // Extract unique universities
+  
       const universitySet = new Set();
       canteens.forEach(canteen => {
         canteen.universities.forEach(uni => universitySet.add(uni));
       });
-      this.universities = Array.from(universitySet); // Convert Set to Array for dropdown
+      this.universities = Array.from(universitySet); 
 
-      // Extract all canteen names
+  
       this.allMensas = canteens.map(canteen => ({
         name: canteen.name,
         universities: canteen.universities
       }));
 
-      this.mensas = this.allMensas; // Initially, all mensas are displayed
+      this.filterCanteensByUniversity(); 
     },
     filterCanteensByUniversity() {
       if (this.selectedUniversity) {
-        // Filter the mensas by selected university
-        this.mensas = this.allMensas.filter(mensa => mensa.universities.includes(this.selectedUniversity));
+        // Filter canteens based on selected university 
+        this.mensas = this.allMensas.filter(mensa =>
+          mensa.universities.includes(this.selectedUniversity)
+        );
       } else {
-        // If no university is selected, show all mensas
+        // Show all canteens when nothing is selected
         this.mensas = this.allMensas;
+      }
+      this.saveSelection(); 
+    }
+  },
+  computed: {
+    shouldShowInitialBalanceInput() {
+      // Show initial Balance only if the balance equals 0
+      return this.balance === 0;
+    }
+  },
+  watch: {
+    // Watchers for automated saving of changes
+    selectedRole(newValue) {
+      this.saveSelection();
+    },
+    selectedUniversity(newValue) {
+      this.saveSelection();
+    },
+    selectedMensa(newValue) {
+      this.saveSelection();
+    },
+    dietPreferences: {
+      deep: true, 
+      handler(newValue) {
+        this.saveSelection();
       }
     }
   },
@@ -180,6 +216,7 @@ export default {
     }, 1000);
   }
 };
+
 </script>
 
 <style scoped>
