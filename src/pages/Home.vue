@@ -1,393 +1,282 @@
 <template>
-  <div class="favorites-section container mt-5">
-    <h2 class="text-center mb-5">Your Favorite Meals</h2>
-    <div v-if="favoriteMeals.length > 0" class="row">
-      <div 
-        class="col-md-6 col-lg-4 mb-4" 
-        v-for="meal in favoriteMeals" 
-        :key="meal.id"
-      >
-        <div class="card h-100 shadow-sm">
-          <div class="card-body">
-            <div class="dish-header">
-              <div class="meal-header">
-                <h5 class="meal-title mb-2">{{ meal.name || 'Unnamed Meal' }}</h5>
-                <button @click="removeMeal(meal.id)" class="favorite-button" title="Remove from favorites">
-                  <span>★</span>
-                </button>
-              </div>
-              <div class="badges-wrapper">
-                <div class="badges">
-                  <span v-for="badgeId in meal.badges" :key="badgeId"
-                    :class="['badge', 'badge-item', `${getBadgeName(badgeId).type}-badge`]">
-                    <span v-if="getBadgeName(badgeId).showText">{{ getBadgeName(badgeId).name }}</span>
-                  </span>
-                  <span :class="['badge', 'category-badge', `${getCategoryStyle(meal.category).type}-badge`]">
-                    {{ meal.category }}
-                  </span>
-                </div>
-              </div>
-              <div class="menu-description">
-                <p class="badge-descriptions">
-                  <template v-for="badgeId in meal.badges" :key="badgeId">
-                    {{ getBadgeDescription(badgeId) }}
-                  </template>
-                </p>
-                <p class="additives-info">
-                  Allergene: 
-                  <span v-for="additiveId in meal.additives" :key="additiveId" class="additive">
-                    {{ getAdditiveText(additiveId) }}
-                  </span>
-                </p>
-              </div>
-              <div class="prices">
-                <span v-for="priceItem in filteredPrices(meal)" :key="priceItem.priceType" class="price">
-                  {{ priceItem.priceType }}: {{ priceItem.price.toFixed(2) }}€
-                </span>
-              </div>
+  <!-- Main Content of the Page -->
+  <div class="main-content container">
+    <!-- Hero Section as Card -->
+    <div class="card my-5">
+      <div class="card-body">
+        <section class="hero-section text-center">
+          <h1>Are you starving?</h1>
+          <p>Within a few clicks, find a cafeteria near you.</p>
+          <h3>Search a mensa near you:</h3>
+          <div class="mb-3 form-group">
+            <div class="input-group">
+              <select class="form-select" id="mensaSelect" v-model="selectedMensa">
+                <option v-for="mensa in mensas" :key="mensa.id" :value="mensa.id">{{ mensa.name }}</option>
+              </select>
+              <!-- Pin button for nearest cafeteria -->
+              <button class="btn btn-outline-primary" @click="findNearestCafeteria">
+                📍
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Offers Section -->
+    <div class="offers-section container mt-5">
+    <h2 class="text-center mb-4">Our Offers</h2>
+    <div class="d-flex justify-content-between flex-wrap">
+      <div class="card mb-4" v-for="offer in offers" :key="offer.id" style="width: 18rem;">
+        <img :src="offer.image" class="card-img-top" alt="Offer Image" />
+        <div class="card-body">
+          <h5 class="card-title">{{ offer.title }}</h5>
+          <p class="card-text">{{ offer.description }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works mt-5">
+      <h2 class="text-center mb-4">How does it work?</h2>
+      <div class="row">
+        <div class="col-md-4" v-for="step in steps" :key="step.id">
+          <div class="card h-100 feature-card">
+            <div class="card-body text-center">
+              <div class="icon display-4">{{ step.icon }}</div>
+              <h5 class="card-title mt-3">{{ step.title }}</h5>
+              <p class="card-text">{{ step.description }}</p>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- No Favorites -->
-    <div v-else class="text-center">
-      <p class="lead">You don't have any favorite meals yet.</p>
-    </div>
+    <!-- About Us Section -->
+    <section id="about" class="about-section mt-5">
+      <h2 class="text-center mb-4">About Us</h2>
+      <div class="card about-card">
+        <div class="card-body text-center">
+          <h5>About Us</h5>
+          <p>We help you find the best cafeterias around with just a few clicks. Whether you're looking for a quick bite or a full meal, our platform provides you with the best options.</p>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue';
-import apiService from '../services/apiService';
+<script>
+import { ref, onMounted, watch } from 'vue';
+import canteens from '../../canteen.json';
 
-const favoriteMeals = ref([]);
-const badges = ref([]);
-const additives = ref([]);
+import burgerImage from '@/assets/burger.jpg';
+import foodImage from '@/assets/food.jpg';
+import veganFoodImage from '@/assets/vegan-food.jpg';
+import vegieImage from '@/assets/vegie.jpg';
 
-onMounted(async () => {
-  const storedFavoriteIds = JSON.parse(localStorage.getItem('favoriteMeals') || '[]');
-  favoriteMeals.value = await fetchFavoriteMeals(storedFavoriteIds);
-  await fetchBadges();
-  await fetchAdditives();
-});
+export default {
+  setup() {
+    const offers = ref([
+      { id: 1, title: '15% Off', description: 'Greys Vage', image: burgerImage },
+      { id: 2, title: '10% Off', description: 'Greys Vage', image: foodImage },
+      { id: 3, title: '25% Off', description: 'Greys Vage', image: veganFoodImage },
+      { id: 4, title: '20% Off', description: 'Greys Vage', image: vegieImage },
+    ]);
 
-const fetchFavoriteMeals = async (mealIds) => {
-  const meals = [];
-  for (const mealId of mealIds) {
-    try {
-      const meal = await apiService.getMeal(mealId);
-      meals.push(meal);
-    } catch (error) {
-      console.error(`Error fetching meal with ID ${mealId}:`, error);
-    }
+    const steps = ref([
+      { id: 1, icon: '📍', title: 'Select Location', description: 'Choose the location of the cafeteria.' },
+      { id: 2, icon: '🛒', title: 'Choose Order', description: 'Check over hundreds of menus.' },
+      { id: 3, icon: '💳', title: 'Check your student card credit', description: 'It\'s quick, safe, and simple. Select several methods of payment.' },
+    ]);
+
+    const selectedMensa = ref(localStorage.getItem('selectedMensa') || '');
+    const mensas = ref([]);
+    const allMensas = ref([]);
+
+    const extractData = () => {
+      allMensas.value = canteens.map(canteen => ({
+        name: canteen.name,
+        universities: canteen.universities,
+        id: canteen.id,
+        address: canteen.address
+      }));
+      mensas.value = allMensas.value;
+    };
+
+    const saveSelection = () => {
+      localStorage.setItem('selectedMensa', selectedMensa.value);
+    };
+
+    const findNearestCafeteria = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(setNearestCafeteria, showError);
+      } else {
+        alert('Geolocation is not supported by this browser.');
+      }
+    };
+
+    const setNearestCafeteria = (position) => {
+      const userLat = position.coords.latitude;
+      const userLng = position.coords.longitude;
+
+      let nearestMensa = null;
+      let minDistance = Infinity;
+
+      allMensas.value.forEach((mensa) => {
+        const mensaLat = mensa.address.geoLocation.latitude;
+        const mensaLng = mensa.address.geoLocation.longitude;
+        const distance = calculateDistance(userLat, userLng, mensaLat, mensaLng);
+        if (distance < minDistance) {
+          minDistance = distance;
+          nearestMensa = mensa;
+        }
+      });
+
+      if (nearestMensa) {
+        selectedMensa.value = nearestMensa.id;
+        saveSelection();
+        alert(`Die nächste Mensa ist: ${nearestMensa.name}`);
+      } else {
+        alert('Keine Mensa gefunden.');
+      }
+    };
+
+    const calculateDistance = (lat1, lng1, lat2, lng2) => {
+      const toRad = value => (value * Math.PI) / 180;
+      const R = 6371; // Radius of the Earth in km
+      const dLat = toRad(lat2 - lat1);
+      const dLng = toRad(lng2 - lng1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c; // Distance in km
+    };
+
+    const showError = (error) => {
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          alert('User denied the request for Geolocation.');
+          break;
+        case error.POSITION_UNAVAILABLE:
+          alert('Location information is unavailable.');
+          break;
+        case error.TIMEOUT:
+          alert('The request to get user location timed out.');
+          break;
+        case error.UNKNOWN_ERROR:
+          alert('An unknown error occurred.');
+          break;
+      }
+    };
+
+    onMounted(() => {
+      extractData();
+    });
+
+    watch(selectedMensa, (newValue) => {
+      saveSelection();
+      // Clear relevant local storage items
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('meals_') || key.startsWith('menue_') || key === 'badges') {
+          localStorage.removeItem(key);
+          console.log('removed', key);
+        }
+      });
+    });
+
+    return {
+      offers,
+      steps,
+      selectedMensa,
+      mensas,
+      findNearestCafeteria
+    };
   }
-  return meals;
-};
-
-const removeMeal = (mealId) => {
-  favoriteMeals.value = favoriteMeals.value.filter(meal => meal.id !== mealId);
-  const updatedFavoriteIds = favoriteMeals.value.map(meal => meal.id);
-  localStorage.setItem('favoriteMeals', JSON.stringify(updatedFavoriteIds));
-};
-
-const filteredPrices = (meal) => {
-  const selectedRole = localStorage.getItem('selectedRole') || 'Studierende';
-  return meal.prices.filter(priceItem => priceItem.priceType === selectedRole);
-};
-
-const fetchBadges = async () => {
-  try {
-    badges.value = await apiService.getBadges();
-  } catch (error) {
-    console.error('Error fetching badges:', error);
-  }
-};
-
-const fetchAdditives = async () => {
-  try {
-    additives.value = await apiService.getAdditives();
-  } catch (error) {
-    console.error('Error fetching additives:', error);
-  }
-};
-
-const getBadgeName = (badgeId) => {
-  const badge = badges.value.find(b => b.id === badgeId);
-  const name = badge ? badge.name : 'Unknown Badge';
-  let type = 'default';
-  let showText = true;
-
-  if (name.length === 1) {
-    return { name: '', type, showText: false };
-  }
-
-  switch (name.toUpperCase()) {
-    case 'VEGAN':
-      type = 'vegan';
-      break;
-    case 'VEGETARISCH':
-      type = 'vegetarian';
-      break;
-    case 'GRÜNER AMPELPUNKT':
-      type = 'green-dot';
-      showText = false;
-      break;
-    case 'GELBER AMPELPUNKT':
-      type = 'yellow-dot';
-      showText = false;
-      break;
-    case 'ROTER AMPELPUNKT':
-      type = 'red-dot';
-      showText = false;
-      break;
-    case 'CO2_BEWERTUNG_A':
-      return { name: 'CO2 - A', type: 'co2-a', showText: true };
-    case 'CO2_BEWERTUNG_B':
-      return { name: 'CO2 - B', type: 'co2-b', showText: true };
-    case 'CO2_BEWERTUNG_C':
-      return { name: 'CO2 - C', type: 'co2-c', showText: true };
-    case 'H2O_BEWERTUNG_A':
-      return { name: 'H2O - A', type: 'h2o-a', showText: true };
-    case 'H2O_BEWERTUNG_B':
-      return { name: 'H2O - B', type: 'h2o-b', showText: true };
-    case 'H2O_BEWERTUNG_C':
-      return { name: 'H2O - C', type: 'h2o-c', showText: true };
-  }
-
-  return { name, type, showText };
-};
-
-const getBadgeDescription = (badgeId) => {
-  const badge = badges.value.find(b => b.id === badgeId);
-  return badge && badge.description ? ` ${badge.description}` : '';
-};
-
-const getCategoryStyle = (category) => {
-  let type = 'default';
-  let showText = true;
-
-  switch (category.toUpperCase()) {
-    case 'SALATE':
-      type = 'salad';
-      break;
-    case 'SUPPEN':
-      type = 'soup';
-      break;
-    case 'ESSEN':
-    case 'HAUPTGERICHTE':
-      type = 'main-dish';
-      break;
-    case 'BEILAGEN':
-      type = 'side-dish';
-      break;
-    case 'DESSERTS':
-      type = 'dessert';
-      break;
-  }
-
-  return { type, showText };
-};
-
-const getAdditiveText = (additiveId) => {
-  const additive = additives.value.find(a => a.id === additiveId);
-  return additive ? additive.text : '';
 };
 </script>
 
 <style scoped>
-.menu-description {
-  text-align: left;
+/* General Styling */
+.main-content {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  white-space: normal;
-  word-wrap: break-word;
-  overflow-y: auto;
-  max-height: 150px;
-}
-
-.badge-descriptions {
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-.additives-info {
-  font-size: 0.9rem;
-  color: #666;
-  margin-top: 5px;
-  white-space: normal;
-  word-wrap: break-word;
-}
-
-.additive {
-  display: inline-block;
-  margin-right: 5px;
-  margin-bottom: 5px;
-  padding: 2px 5px;
-  background-color: #f0f0f0;
-  border-radius: 3px;
-  font-size: 0.8rem;
-}
-
-.dish-header {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
-}
-
-.price {
-  font-size: 1rem;
-  color: #2d9a2d;
-  margin-top: 5px;
-}
-
-.badges {
-  display: flex;
-  gap: 8px;
-  margin-left: auto;
-  margin-right: auto;
-  flex-wrap: wrap;
-}
-
-.badge {
-  padding: 4px 8px;
-  border-radius: 16px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.category-badge {
-  background-color: #007bff;
-  color: white;
-}
-
-.vegan-badge {
-  background-color: #2d9a2d;
-  color: white;
-}
-
-.vegetarian-badge {
-  background-color: #4caf50;
-  color: white;
-}
-
-.green-dot-badge::before,
-.yellow-dot-badge::before,
-.red-dot-badge::before {
-  content: '';
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-right: 5px;
-}
-
-.green-dot-badge::before {
-  background-color: #2d9a2d;
-}
-
-.yellow-dot-badge::before {
-  background-color: #ffd700;
-}
-
-.red-dot-badge::before {
-  background-color: #ff0000;
-}
-
-.green-dot-badge,
-.yellow-dot-badge,
-.red-dot-badge {
-  background-color: transparent;
-  color: #333;
-  display: flex;
   align-items: center;
+  justify-content: center;
 }
 
-.salad-badge {
-  background-color: #4CAF50;
-  color: white;
+/* Hero Section */
+.hero-section {
+  padding: 40px 20px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
 }
 
-.soup-badge {
-  background-color: #FF9800;
-  color: white;
+.hero-section h1 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
 }
 
-.main-dish-badge {
-  background-color: #2196F3;
-  color: white;
+.hero-section p {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
 }
 
-.side-dish-badge {
-  background-color: #9C27B0;
-  color: white;
-}
-
-.dessert-badge {
-  background-color: #E91E63;
-  color: white;
-}
-
-.default-badge {
-  background-color: #E91E63;
-  color: white;
-}
-
-.co2-a-badge, .h2o-a-badge {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.co2-b-badge, .h2o-b-badge {
-  background-color: #FFC107;
-  color: black;
-}
-
-.co2-c-badge, .h2o-c-badge {
-  background-color: #F44336;
-  color: white;
-}
-
-.badges-wrapper {
-  overflow-x: auto;
-  white-space: nowrap;
-  width: 100%;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.badges-wrapper::-webkit-scrollbar {
-  display: none;
-}
-
-.meal-header {
+.search-form {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  justify-content: center;
 }
 
-.meal-title {
-  margin: 0;
-  flex-grow: 1;
+.search-form .input-group {
+  max-width: 600px;
 }
 
-.favorite-button {
-  background: none;
+/* Offers Section */
+.offers-section {
+  padding: 40px 0;
+}
+
+.card-img-top {
+  height: 200px;
+  object-fit: cover;
+}
+
+/* How It Works Section */
+.how-it-works {
+  background-color: #ffffff;
+  padding: 40px 0;
+}
+
+.feature-card {
+  background-color: #f4f4f4;
   border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: gold;
-  padding: 0;
-  line-height: 1;
-  flex-shrink: 0;
+  border-radius: 10px;
 }
 
-.prices {
-  margin-top: 10px;
-  height: auto;
+.icon {
+  font-size: 2.5rem;
+  color: #007bff;
+}
+
+.step .card-body {
+  padding: 20px;
+}
+
+/* About Us Section */
+.about-section {
+  background-color: #ffffff;
+  padding: 40px 0;
+}
+
+.about-card {
+  background-color: #f4f4f4;
+  border: none;
+  border-radius: 10px;
+}
+
+.about-card .card-body {
+  padding: 30px;
 }
 </style>

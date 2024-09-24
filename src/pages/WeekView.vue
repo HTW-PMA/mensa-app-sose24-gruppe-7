@@ -386,7 +386,7 @@ export default {
 }
 
 .days::-webkit-scrollbar {
-  display: none; /* WebKit */
+  display: none; 
 }
 
 .arrow-button {
@@ -399,10 +399,11 @@ export default {
   border-radius: 50%;
   transition: background-color 0.3s ease;
   flex-shrink: 0; /* Prevent shrinking */
-}
+  
 
 .arrow-button:hover {
   background-color: #0056b3;
+}
 }
 
 .day {
