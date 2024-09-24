@@ -23,6 +23,9 @@
             <router-link class="nav-link" to="/weekview">WeekView</router-link>
           </li>
           <li class="nav-item">
+            <router-link class="nav-link" to="/favorites">Favorites</router-link>
+          </li>
+          <li class="nav-item">
             <router-link class="nav-link" to="/settings">Settings</router-link>
           </li>
         </ul>
