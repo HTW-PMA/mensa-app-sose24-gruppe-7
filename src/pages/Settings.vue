@@ -10,19 +10,18 @@
         <div class="mb-3">
           <label for="roleSelect" class="form-label text-start">Rolle</label>
           <select class="form-select" id="roleSelect" v-model="selectedRole">
-            <option>Gast</option>
-            <option>Student</option>
-            <option>Dozent</option>
+            <option>Gäste</option>
+            <option>Studierende</option>
+            <option>Angestellte</option>
           </select>
         </div>
 
         <!-- University Selection -->
         <div class="mb-3">
           <label for="universitySelect" class="form-label text-start">Universität</label>
-          <select class="form-select" id="universitySelect" v-model="selectedUniversity">
-            <option>HU</option>
-            <option>FU</option>
-            <option>TU</option>
+          <select class="form-select" id="universitySelect" v-model="selectedUniversity" @change="filterCanteensByUniversity">
+            <option value="">Alle Universitäten</option>
+            <option v-for="university in universities" :key="university">{{ university }}</option>
           </select>
         </div>
 
@@ -31,9 +30,7 @@
           <label for="mensaSelect" class="form-label text-start">Mensa</label>
           <div class="input-group">
             <select class="form-select" id="mensaSelect" v-model="selectedMensa">
-              <option>Mensa HU Oase Adlershof</option>
-              <option>Mensa FU Veggie 2.0</option>
-              <option>Mensa TU Hardenbergstraße</option>
+              <option v-for="mensa in mensas" :key="mensa.name">{{ mensa.name }}</option>
             </select>
             <!-- Pin button for nearest cafeteria -->
             <button class="btn btn-outline-primary" @click="findNearestCafeteria">
@@ -96,13 +93,19 @@
   </div>
 </template>
 
+
 <script>
+import canteens from '../../canteen.json'; 
+
 export default {
   data() {
     return {
-      selectedRole: 'Gast',
-      selectedUniversity: 'HU',
-      selectedMensa: 'Mensa HU Oase Adlershof',
+      selectedRole: 'Studierende',
+      selectedUniversity: '',
+      selectedMensa: '', 
+      universities: [], 
+      mensas: [], 
+      allMensas: [], 
       dietPreferences: {
         meat: false,
         vegetarian: false,
@@ -138,12 +141,40 @@ export default {
         alert('Bitte einen gültigen Betrag eingeben');
       }
     },
+    getSelectedRole() {
+      return this.selectedRole;
+    },
     findNearestCafeteria() {
-      // Logic for finding the nearest cafeteria goes here
       alert('Nächste Mensa wird gesucht...');
+    },
+    extractData() {
+      // Extract unique universities
+      const universitySet = new Set();
+      canteens.forEach(canteen => {
+        canteen.universities.forEach(uni => universitySet.add(uni));
+      });
+      this.universities = Array.from(universitySet); // Convert Set to Array for dropdown
+
+      // Extract all canteen names
+      this.allMensas = canteens.map(canteen => ({
+        name: canteen.name,
+        universities: canteen.universities
+      }));
+
+      this.mensas = this.allMensas; // Initially, all mensas are displayed
+    },
+    filterCanteensByUniversity() {
+      if (this.selectedUniversity) {
+        // Filter the mensas by selected university
+        this.mensas = this.allMensas.filter(mensa => mensa.universities.includes(this.selectedUniversity));
+      } else {
+        // If no university is selected, show all mensas
+        this.mensas = this.allMensas;
+      }
     }
   },
   mounted() {
+    this.extractData();
     setInterval(() => {
       this.currentTime = new Date().toLocaleTimeString();
     }, 1000);
@@ -158,7 +189,7 @@ export default {
 
 .card {
   margin-top: 20px;
-  border-radius: 12px; /* Rounded corners for a modern look */
+  border-radius: 12px; 
 }
 
 .card-header {
@@ -166,7 +197,7 @@ export default {
 }
 
 .btn {
-  border-radius: 25px; /* Rounded buttons for a sleek appearance */
+  border-radius: 25px; 
 }
 
 .form-select, .form-control {
@@ -183,10 +214,10 @@ export default {
 }
 
 .shadow-sm {
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* Subtle shadow for modern feel */
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); 
 }
 
-/* Make labels left-aligned */
+
 .form-label {
   display: block;
   text-align: left;
@@ -194,6 +225,6 @@ export default {
 }
 
 .ms-2 {
-  margin-left: 0.5rem; /* Adjust the space between Mensa select and pin button */
+  margin-left: 0.5rem; 
 }
 </style>
