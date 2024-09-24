@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { VitePWA } from 'vite-plugin-pwa';
+import path from 'path'; // Füge dies hinzu
 
 export default defineConfig({
   plugins: [
@@ -50,7 +51,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': '/src', // Hinzufügen des Alias für den `src`-Ordner
+      '@': path.resolve(__dirname, './src'), // Korrigiere den Alias hier
     },
   },
 });

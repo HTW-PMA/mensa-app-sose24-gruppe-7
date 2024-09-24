@@ -23,21 +23,19 @@
       </div>
     </div>
 
-    <!-- Offers or Features Section -->
-    <section class="offers-section mt-5">
-      <h2 class="text-center mb-4">Our Offers</h2>
-      <div class="row">
-        <div class="col-md-3" v-for="offer in offers" :key="offer.id">
-          <div class="card h-100">
-            <img :src="offer.image" class="card-img-top" alt="Offer Image" />
-            <div class="card-body">
-              <h5 class="card-title">{{ offer.title }}</h5>
-              <p class="card-text">{{ offer.description }}</p>
-            </div>
-          </div>
+    <!-- Offers Section -->
+    <div class="offers-section container mt-5">
+    <h2 class="text-center mb-4">Our Offers</h2>
+    <div class="d-flex justify-content-between flex-wrap">
+      <div class="card mb-4" v-for="offer in offers" :key="offer.id" style="width: 18rem;">
+        <img :src="offer.image" class="card-img-top" alt="Offer Image" />
+        <div class="card-body">
+          <h5 class="card-title">{{ offer.title }}</h5>
+          <p class="card-text">{{ offer.description }}</p>
         </div>
       </div>
-    </section>
+    </div>
+  </div>
 
     <!-- How It Works Section -->
     <section class="how-it-works mt-5">
@@ -71,15 +69,19 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-// Offers
+import burgerImage from '@/assets/burger.jpg';
+import foodImage from '@/assets/food.jpg';
+import veganFoodImage from '@/assets/vegan-food.jpg';
+import vegieImage from '@/assets/vegie.jpg';
+
 const offers = ref([
-  { id: 1, title: '15% Off', description: 'Greys Vage', image: '../assets/offer1.png' },
-  { id: 2, title: '10% Off', description: 'Greys Vage', image: '../assets/offer2.png' },
-  { id: 3, title: '25% Off', description: 'Greys Vage', image: '../assets/offer3.png' },
-  { id: 4, title: '20% Off', description: 'Greys Vage', image: '../assets/offer4.png' },
+  { id: 1, title: '15% Off', description: 'Greys Vage', image: burgerImage },
+  { id: 2, title: '10% Off', description: 'Greys Vage', image: foodImage },
+  { id: 3, title: '25% Off', description: 'Greys Vage', image: veganFoodImage },
+  { id: 4, title: '20% Off', description: 'Greys Vage', image: vegieImage },
 ]);
 
-// How it Works Steps
+
 const steps = ref([
   { id: 1, icon: '📍', title: 'Select Location', description: 'Choose the location of the cafeteria.' },
   { id: 2, icon: '🛒', title: 'Choose Order', description: 'Check over hundreds of menus.' },
@@ -134,14 +136,14 @@ const steps = ref([
 
 /* How It Works Section */
 .how-it-works {
-  background-color: #ffffff; /* Set background of the section to white */
+  background-color: #ffffff;
   padding: 40px 0;
 }
 
 .feature-card {
-  background-color: #f4f4f4; /* Set individual cards to light gray */
-  border: none; /* Remove border to make the gray background look smooth */
-  border-radius: 10px; /* Optional: Slightly round the card edges */
+  background-color: #f4f4f4;
+  border: none;
+  border-radius: 10px;
 }
 
 .icon {
@@ -155,14 +157,14 @@ const steps = ref([
 
 /* About Us Section */
 .about-section {
-  background-color: #ffffff; /* Set section background to white */
+  background-color: #ffffff;
   padding: 40px 0;
 }
 
 .about-card {
-  background-color: #f4f4f4; /* Set the card to light gray */
-  border: none; /* Remove the card border */
-  border-radius: 10px; /* Slightly round the card edges */
+  background-color: #f4f4f4;
+  border: none;
+  border-radius: 10px;
 }
 
 .about-card .card-body {

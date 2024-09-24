@@ -2,8 +2,6 @@
 import apiService from '../services/apiService.ts';
 import { Mensa, Meal, Badges } from '../services/apiServiceTypes.ts';
 
-
-
 export default {
   name: 'GetMensas',
   data() {
@@ -14,28 +12,25 @@ export default {
       currentDate: new Date(),
       daysOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
       selectedMenu: [] as Meal[],
-      canteenId: '655ff175136d3b580c970f80',
+      canteenId: localStorage.getItem('selectedMensa') || '',  // Dynamische Mensa aus Settings abrufen
     };
   },
   methods: {
     fetchCanteens() {
       apiService.getMensen()
-        .then((response) => { 
+        .then((response) => {
           this.canteens = response;
-          // console.log(this.canteens[0].address.city);
         })
         .catch((error: any) => {
           console.error(error);
         });
     },
 
-
-
     fetchMeals(canteenId: string) {
       const startDate = new Date().toLocaleDateString('en-CA', { year: 'numeric', day: '2-digit', month: '2-digit' }).replace(/\//g, '-');
 
       apiService.getAllMealsFromCanteenFromDay(canteenId, startDate)
-        .then((response: Meal[]) => { 
+        .then((response: Meal[]) => {
           this.meals = response;
           console.log(this.meals[0]);
         })
@@ -43,9 +38,11 @@ export default {
           console.error(error);
         });
     },
+
     formatDate(date: Date): string {
       return date.toISOString().split('T')[0];
     },
+
     getStartOfWeek(date: Date): Date {
       const currentDay = date.getDay();
       const distanceFromMonday = currentDay === 0 ? 6 : currentDay - 1;
@@ -53,28 +50,34 @@ export default {
       monday.setDate(date.getDate() - distanceFromMonday);
       return monday;
     },
+
     getDateForDay(dayOffset: number): Date {
       const monday = this.getStartOfWeek(this.currentDate);
       const targetDate = new Date(monday);
       targetDate.setDate(monday.getDate() + dayOffset);
       return targetDate;
     },
+
     changeDay(offset: number) {
       this.currentDate.setDate(this.currentDate.getDate() + offset);
       const dayOffset = this.currentDate.getDay() - 1;
       this.updateMenuForDay(dayOffset);
     },
+
     handleDayClick(dayOffset: number) {
       this.currentDate = this.getDateForDay(dayOffset);
       this.updateMenuForDay(dayOffset);
     },
+
     isSelectedDay(dayOffset: number): boolean {
       const targetDate = this.getDateForDay(dayOffset);
       return targetDate.toDateString() === this.currentDate.toDateString();
     },
+
     updateMenuForDay(dayOffset: number) {
       const targetDate = this.formatDate(this.getDateForDay(dayOffset));
 
+      // Verwende die dynamische canteenId, die aus Local Storage geladen wird
       apiService.getAllMealsFromCanteenFromDay(this.canteenId, targetDate)
         .then((meals: Meal[]) => {
           this.selectedMenu = meals;
@@ -84,6 +87,7 @@ export default {
           this.selectedMenu = [];
         });
     },
+
     fetchBadges() {
       apiService.getBadges()
         .then((badges: Badges) => {
@@ -93,6 +97,7 @@ export default {
           console.error(error);
         });
     },
+
     getBadgeName(badgeId: string): { name: string; type: string; showText: boolean } {
       const badge = this.badges.find(b => b.id === badgeId);
       const name = badge ? badge.name : 'Unknown Badge';
@@ -122,10 +127,12 @@ export default {
 
       return { name, type, showText };
     },
+
     getBadgeDescription(badgeId: string): string {
       const badge = this.badges.find(b => b.id === badgeId);
       return badge && badge.description ? ` ${badge.description}` : '';
     },
+
     getCategoryStyle(category: string): { type: string; showText: boolean } {
       let type = 'default';
       let showText = true;
@@ -147,12 +154,12 @@ export default {
         case 'DESSERTS':
           type = 'dessert';
           break;
-        // Add more cases as needed
       }
 
       return { type, showText };
     },
   },
+
   created() {
     this.fetchCanteens();
     this.updateMenuForDay(0);
@@ -160,8 +167,6 @@ export default {
   },
 };
 </script>
-
-
 
 <template>
   <div class="menu-container">
@@ -177,19 +182,26 @@ export default {
       <button id="next" class="arrow-button" @click="changeDay(1)">→</button>
     </div>
 
+    <!-- Filter Dropdown -->
+    <div class="filter-section">
+      <label for="categoryFilter">Filter nach Kategorie:</label>
+      <select id="categoryFilter" v-model="selectedCategory" @change="filterMealsByCategory">
+        <option value="">Alle Kategorien</option>
+        <option value="Essen">Essen</option>
+        <option value="Salate">Salat</option>
+        <option value="Suppen">Suppe</option>
+        <option value="Beilagen">Beilagen</option>
+        <option value="Desserts">Desserts</option>
+      </select>
+    </div>
+
     <!-- Menu for the selected day -->
     <div class="menu">
-
       <ul class="menu-list">
-
-        <li v-for="meal in selectedMenu" :key="meal.id" class="menu-item">
-
+        <li v-for="meal in filteredMenu" :key="meal.id" class="menu-item">
           <div class="card">
             <div class="card-body">
-
               <router-link :to="{ name: 'DishDetail', params: { id: meal.id } }" class="menu-link">
-                <!-- Mock image for now -->
-                <!-- <img :src="meal.image || 'https://via.placeholder.com/100'" alt="Dish Image" class="menu-img"> -->
                 <div class="menu-description">
                   <div class="dish-header">
                     <h4>{{ meal.name }}</h4>
@@ -219,8 +231,6 @@ export default {
                       {{ priceItem.priceType }}: {{ priceItem.price.toFixed(2) }}€
                     </span>
                   </div>
-                  <!-- Ingredients -->
-
                 </div>
               </router-link>
             </div>
@@ -228,10 +238,9 @@ export default {
         </li>
       </ul>
     </div>
-
-
   </div>
 </template>
+
 
 <style scoped>
 .menu-container {

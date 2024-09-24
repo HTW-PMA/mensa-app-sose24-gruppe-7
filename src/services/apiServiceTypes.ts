@@ -43,6 +43,7 @@ export type Mensa = {
 };
 
 /* Menue */
+
 export interface Menue {
     date: string;
     canteenId: string;
@@ -75,3 +76,9 @@ export type Badge = {
 };
 
 export type Badges = Badge[];
+
+export type Additive = {
+    id: string;
+    text: string;
+    referenceid: string;
+};

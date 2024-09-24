@@ -1,10 +1,11 @@
 import axios from 'axios';
-import { Mensa, Menue, Meal, Badges } from './apiServiceTypes.ts';
+import { Mensa, Menue, Meal, Badges, Additive } from './apiServiceTypes';
 
 const apiClient = axios.create({
     baseURL: 'https://mensa.gregorflachs.de/api/v1',
     headers: {
-        'X-API-KEY': '',
+        'X-API-KEY': '',  // Füge hier deinen API-Schlüssel ein
+        Accept: 'application/json',
         'Content-Type': 'application/json',
     },
 });
@@ -37,7 +38,7 @@ export default {
     },
 
     async getMeal(mealId: string): Promise<Meal> {
-        const cacheKey = `meal`;
+        const cacheKey = `meal_${mealId}`;
         const cachedMeal = localStorage.getItem(cacheKey);
         if (cachedMeal) {
             return JSON.parse(cachedMeal);
@@ -62,7 +63,17 @@ export default {
 
         return badges;
     },
+    async getAdditives(): Promise<Additive[]> {
+        const cachedAdditives = localStorage.getItem('additives');
+        if (cachedAdditives) {
+            return JSON.parse(cachedAdditives);
+        }
 
+        const response = await apiClient.get(`/additive?loadingtype=lazy`);
+        const additives = response.data;
+        localStorage.setItem('additives', JSON.stringify(additives));
+        return additives;
+    },
 
     async getAllMealsFromCanteenFromDay(canteenId: string, date: string): Promise<Meal[]> {
         const storedMeals = localStorage.getItem(`meals_${date}`);
@@ -84,9 +95,7 @@ export default {
             const meal = await this.getMeal(mealId);
             meals.push(meal);
         }
-
         localStorage.setItem(`meals_${date}`, JSON.stringify(meals));
-
         return meals;
     },
 
