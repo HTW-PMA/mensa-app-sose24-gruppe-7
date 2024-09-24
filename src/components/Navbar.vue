@@ -1,6 +1,6 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-    <a class="navbar-brand" href="#">Navbar</a>
+    <a class="navbar-brand" href="#">studybites</a>
     <button
       class="navbar-toggler"
       type="button"
@@ -33,10 +33,9 @@
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
             <li><router-link class="dropdown-item" to="/weekview">WeekView</router-link></li>
-            <li><router-link class="dropdown-item" to="/studentcredit">StudentCredit</router-link></li>
+            <li><router-link class="dropdown-item" to="/settings">Settings</router-link></li>
             <li><hr class="dropdown-divider"></li>
             <li><router-link class="dropdown-item" to="/cafeteriamap">Search for Cafeteria</router-link></li>
-            <li><router-link class="dropdown-item" to="/api-test">API Test</router-link></li>
           </ul>
         </li>
       </ul>

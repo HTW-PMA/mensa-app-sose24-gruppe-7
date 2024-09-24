@@ -1,0 +1,77 @@
+[
+    {
+        "name": "Grüner Ampelpunkt",
+        "description": "Die beste Wahl – je öfter, desto besser. Diese Speisen besitzen eine gute ernährungsphysiologische Qualität, denn sie haben eine hohe Nährstoffdichte und eine geringe Energiedichte. Der Anteil von Fetten ist gering. Es wird eine gesundheitsfördernde Garmethode angewendet.",
+        "id": "655ff0fe136d3b580c970f6c"
+    },
+    {
+        "name": "Gelber Ampelpunkt",
+        "description": "Eine gute Wahl – immer mal wieder. Diese Gerichte besitzen eine mittlere Nährstoffdichte. Die Gerichte enthalten in Maßen Zucker und Fett. Vor allem Milchprodukte und kohlenhydratreiche Zutaten finden sich in diesen Gerichten wieder.",
+        "id": "655ff0fe136d3b580c970f6d"
+    },
+    {
+        "name": "Roter Ampelpunkt",
+        "description": "Eher selten – am besten mit Grün kombinieren. Diese Gerichte haben eine sehr geringe Nährstoffdichte. Fettreiche Milchprodukte und Fleisch, sowie panierte Gerichte sind oft Bestandteil dieser Gerichte. Auch frittierte Speisen fallen in diese Kategorie.",
+        "id": "655ff0fe136d3b580c970f6e"
+    },
+    {
+        "name": "Vegan",
+        "description": "Gerichte werden ausschließlich aus veganen Rohstoffen zubereitet. Es sind keine tierischen Rohstoffe enthalten.",
+        "id": "655ff0fe136d3b580c970f6f"
+    },
+    {
+        "name": "Fairtrade",
+        "description": "mit Bestandteilen aus fairem Handel",
+        "id": "655ff0fe136d3b580c970f70"
+    },
+    {
+        "name": "Klimaessen",
+        "description": "Das Klimaessen setzt sich aus frischen, rein pflanzlichen und nachhaltigen Produkten zusammen. Es wird auf Reis, vorgefertigtes Kartoffelpüree und Pommes Frites, sowie auf vorgefertigte Produkte, wie Brokkoli-Ecken oder Sesamschnitten verzichtet. Es werden weiterhin keine Tiefkühlprodukte, Trockenprodukte und auch Konserven verwendet. Getreideprodukte wie Dinkel, Buchweizen, Bulgur, Hirse und Amarant oder auch andere eiweißhaltige Lebensmittel, wie Nüsse, Gemüse und pflanzliche Öle, sind wesentliche Bestandteile des Klimaessens. Auch wird noch mehr auf Saisonalität geachtet werden.",
+        "id": "655ff0fe136d3b580c970f71"
+    },
+    {
+        "name": "Vegetarisch",
+        "description": "Gerichte werden ohne Fisch- und Fleischzutaten zubereitet. Milchprodukte und Ei können enthalten sein.",
+        "id": "655ff0fe136d3b580c970f72"
+    },
+    {
+        "name": "Nachhaltige Landwirtschaft",
+        "description": "Lebensmittel aus nachhaltiger Erzeugung",
+        "id": "655ff0fe136d3b580c970f73"
+    },
+    {
+        "name": "Nachhaltige Fischerei",
+        "description": "Es wird auf eine bestandsschonende Fischerei und nachhaltige Fangmethoden geachtet.",
+        "id": "655ff0ff136d3b580c970f74"
+    },
+    {
+        "name": "CO2_bewertung_A",
+        "description": "Das Gericht verbessert die CO₂-Bilanz wesentlich. Der CO₂-Wert dieses Gerichts liegt unter der Hälfte des Durchschnitts-CO₂-Werts aller betrachteten Speisen.",
+        "id": "655ff0ff136d3b580c970f75"
+    },
+    {
+        "name": "CO2_bewertung_B",
+        "description": "Das Gericht verbessert die CO₂-Bilanz leicht. Der CO₂-Wert dieses Gerichts liegt unter dem Durchschnitts-CO₂-Wert aller betrachteten Speisen.",
+        "id": "655ff0ff136d3b580c970f76"
+    },
+    {
+        "name": "CO2_bewertung_C",
+        "description": "Das Gericht verschlechtert die CO₂-Bilanz. Der CO₂-Wert dieses Gerichtes liegt über dem Durchschnitts-CO₂-Wert aller betrachteten Speisen.",
+        "id": "655ff0ff136d3b580c970f77"
+    },
+    {
+        "name": "H2O_bewertung_A",
+        "description": "Der Wasserverbrauch für dieses Gericht liegt unter dem durchschnittlichen Vergleichswert aller betrachteten Speisen.",
+        "id": "655ff0ff136d3b580c970f78"
+    },
+    {
+        "name": "H2O_bewertung_B",
+        "description": "Der Wasserverbrauch für dieses Gericht ist doppelt so hoch wie der durchschnittliche Vergleichswert aller betrachteten Speisen.",
+        "id": "655ff0ff136d3b580c970f79"
+    },
+    {
+        "name": "H2O_bewertung_C",
+        "description": "Der Wasserverbrauch für dieses Gericht ist mehr als doppelt so hoch wie der durchschnittliche Vergleichswert aller betrachteten Speisen.",
+        "id": "655ff0ff136d3b580c970f7a"
+    }
+]
