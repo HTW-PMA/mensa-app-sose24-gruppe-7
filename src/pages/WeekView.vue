@@ -194,7 +194,7 @@ export default {
         case 'SUPPEN':
           return new URL('@/assets/soup.jpg', import.meta.url).href;
         default:
-          return new URL('@/assets/default.jpg', import.meta.url).href; // Fallback image
+          return new URL('@/assets/starter_dish.jpg', import.meta.url).href; // Fallback image
       }
     },
     getBadgeName(badgeId: string): { name: string; type: string; showText: boolean } {
