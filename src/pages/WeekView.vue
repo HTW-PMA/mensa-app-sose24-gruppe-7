@@ -21,6 +21,7 @@ export default {
       selectedCategory: 'ALLES', // Set 'ALLES' as default selected category
       additives: [] as Additive[],
       isLegendVisible: false, // New data property for controlling sidebar visibility
+      noMealsAvailableMessage: '', // Property to hold the no meals message
     };
   },
   computed: {
@@ -39,32 +40,32 @@ export default {
   },
   methods: {
     getCategoryStyle(category: string): { type: string; showText: boolean } {
-    let type = 'default';
-    let showText = true;
+      let type = 'default';
+      let showText = true;
 
-    switch (category.toUpperCase()) {
-      case 'SALATE':
-        type = 'salad';
-        break;
-      case 'SUPPEN':
-        type = 'soup';
-        break;
-      case 'ESSEN':
-      case 'HAUPTGERICHTE':
-        type = 'main-dish';
-        break;
-      case 'BEILAGEN':
-        type = 'side-dish';
-        break;
-      case 'DESSERTS':
-        type = 'dessert';
-        break;
-      default:
-        type = 'default'; // Fallback style if the category doesn't match
-    }
+      switch (category.toUpperCase()) {
+        case 'SALATE':
+          type = 'salad';
+          break;
+        case 'SUPPEN':
+          type = 'soup';
+          break;
+        case 'ESSEN':
+        case 'HAUPTGERICHTE':
+          type = 'main-dish';
+          break;
+        case 'BEILAGEN':
+          type = 'side-dish';
+          break;
+        case 'DESSERTS':
+          type = 'dessert';
+          break;
+        default:
+          type = 'default'; // Fallback style if the category doesn't match
+      }
 
-    return { type, showText };
-  },
+      return { type, showText };
+    },
 
     toggleLegend() {
       this.isLegendVisible = !this.isLegendVisible; // Toggle the legend visibility
@@ -153,6 +154,13 @@ export default {
           return false;
         });
 
+        // If no meals are available for the selected day, show a message
+        if (this.selectedMenu.length === 0) {
+          this.noMealsAvailableMessage = "Für diesen Tag gibt es keinen Speiseplan.";
+        } else {
+          this.noMealsAvailableMessage = "";
+        }
+
         // Fetch additives if not already loaded
         if (this.additives.length === 0) {
           await this.fetchAdditives();
@@ -160,6 +168,7 @@ export default {
       } catch (error) {
         console.error(`Error fetching meals:`, error);
         this.selectedMenu = [];
+        this.noMealsAvailableMessage = "Für diesen Tag gibt es keinen Speiseplan.";
       }
     },
     fetchBadges() {
@@ -346,7 +355,7 @@ export default {
     <div class="row">
       <div class="col-lg-9">
         <div class="menu container">
-          <ul class="menu-list container">
+          <ul class="menu-list container" v-if="filteredMeals.length > 0">
             <li v-for="meal in filteredMeals" :key="meal.id" class="menu-item">
               <div class="card">
                 <div class="card-body d-flex">
@@ -396,6 +405,11 @@ export default {
               </div>
             </li>
           </ul>
+
+          <!-- If no meals are available, display the message -->
+          <div v-else class="no-meals-message text-center">
+            <p>{{ noMealsAvailableMessage }}</p>
+          </div>
         </div>
       </div>
 
