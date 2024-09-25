@@ -302,14 +302,8 @@ export default {
       <div class="col">
         <div class="days-container text-center">
           <div class="days">
-            <div
-              v-for="(day, index) in daysOfWeek"
-              :key="day"
-              ref="dayElements"
-              class="day"
-              :class="{ selected: isSelectedDay(index) }"
-              @click="handleDayClick(index)"
-            >
+            <div v-for="(day, index) in daysOfWeek" :key="day" class="day"
+              :class="{ selected: isSelectedDay(index) }" @click="handleDayClick(index)">
               <p class="day-name">{{ day.toUpperCase() }}</p>
               <p class="date">{{ formatDate(getDateForDay(index)) }}</p>
             </div>
@@ -325,12 +319,9 @@ export default {
 
     <!-- Category filter buttons -->
     <div class="category-filters text-center my-2">
-      <button
-        v-for="category in ['ALLES', 'SALATE', 'ESSEN', 'BEILAGEN', 'DESSERTS']"
-        :key="category"
+      <button v-for="category in ['ALLES', 'SALATE', 'ESSEN', 'BEILAGEN', 'DESSERTS']" :key="category"
         :class="['btn', 'btn-outline-primary', 'btn-sm', { active: selectedCategory === category }]"
-        @click="selectCategory(category)"
-      >
+        @click="selectCategory(category)">
         {{ category }}
       </button>
     </div>
@@ -349,27 +340,22 @@ export default {
           <ul class="menu-list container">
             <li v-for="meal in filteredMeals" :key="meal.id" class="menu-item">
               <div class="card">
-                <div class="card-body d-flex">
-                  <!-- Image based on meal category -->
-                  <img :src="getImageForCategory(meal.category)" alt="Meal Image" class="menu-img" />
-
-                  <div class="menu-description">
+                <div class="card-body d-flex align-items-center">
+                  <!-- Beschreibung links -->
+                  <div class="menu-description flex-grow-1">
                     <div class="dish-header">
-                      <div class="meal-header">
+                      <div class="meal-header d-flex align-items-center">
                         <h4 class="meal-title">{{ meal.name }}</h4>
                         <button @click.stop="toggleFavorite(meal.id)" class="favorite-button btn btn-link btn-sm">
                           <span v-if="isFavorite(meal.id)">★</span>
                           <span v-else>☆</span>
                         </button>
                       </div>
-                      <!-- Badges and category -->
+                      <!-- Badges und Kategorie -->
                       <div class="badges-wrapper">
                         <div class="badges">
-                          <span
-                            v-for="badgeId in meal.badges"
-                            :key="badgeId"
-                            :class="['badge', 'badge-item', `${getBadgeName(badgeId).type}-badge`]"
-                          >
+                          <span v-for="badgeId in meal.badges" :key="badgeId"
+                            :class="['badge', 'badge-item', `${getBadgeName(badgeId).type}-badge`]">
                             <span v-if="getBadgeName(badgeId).showText">{{ getBadgeName(badgeId).name }}</span>
                           </span>
                           <span :class="['badge', 'category-badge', `${getCategoryStyle(meal.category).type}-badge`]">
@@ -377,10 +363,10 @@ export default {
                           </span>
                         </div>
                       </div>
-                      <!-- Prices and additives -->
+                      <!-- Preise und Allergene -->
                       <div class="menu-description">
                         <p class="additives-info">
-                          Allergene:
+                          Allergene: 
                           <span v-for="additiveId in meal.additives" :key="additiveId" class="additive">
                             {{ getAdditiveText(additiveId) }}
                           </span>
@@ -393,6 +379,10 @@ export default {
                       </div>
                     </div>
                   </div>
+                  <!-- Bild rechts -->
+                  <div class="menu-image ml-3">
+                    <img :src="getImageForCategory(meal.category)" alt="Meal Image" class="menu-img">
+                  </div>
                 </div>
               </div>
             </li>
@@ -400,13 +390,15 @@ export default {
         </div>
       </div>
 
-      <!-- Legend component in a Bootstrap column -->
+      <!-- Legende in einer Bootstrap-Spalte -->
       <div v-if="isLegendVisible" class="col-lg-3">
         <Legend />
       </div>
     </div>
   </div>
 </template>
+
+
 
 <style scoped>
 /* Style updates for active category button */
@@ -588,6 +580,7 @@ li {
   height: 100px;
   object-fit: cover;
   border-radius: 8px;
+  margin-left: 20px;
 }
 
 .menu-description {
@@ -599,6 +592,7 @@ li {
   word-wrap: break-word;
   overflow-y: auto;
   max-height: 150px;
+  flex-grow: 1;
 }
 
 .badge-descriptions {

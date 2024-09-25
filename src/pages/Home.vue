@@ -5,9 +5,9 @@
     <div class="card my-5">
       <div class="card-body">
         <section class="hero-section text-center">
-          <h1>Are you starving?</h1>
-          <p>Within a few clicks, find a cafeteria near you.</p>
-          <h3>Search a mensa near you:</h3>
+          <h1>Bist du schon hunrig?</h1>
+          <p>Mit nur wenigen Klicks findest du eine Mensa in deiner Nähe. Klicke einfach auf den Pin, um deinem Ziel einen Schritt näher zu kommen.</p>
+          <h3>Mensen in deiner:</h3>
           <div class="mb-3 form-group">
             <div class="input-group">
               <select class="form-select" id="mensaSelect" v-model="selectedMensa">
@@ -25,7 +25,7 @@
 
     <!-- Offers Section -->
     <div class="offers-section container mt-5">
-    <h2 class="text-center mb-4">Our Offers</h2>
+    <h2 class="text-center mb-4">Unser Angebot</h2>
     <div class="d-flex justify-content-between flex-wrap">
       <div class="card mb-4" v-for="offer in offers" :key="offer.id" style="width: 18rem;">
         <img :src="offer.image" class="card-img-top" alt="Offer Image" />
@@ -39,7 +39,7 @@
 
     <!-- How It Works Section -->
     <section class="how-it-works mt-5">
-      <h2 class="text-center mb-4">How does it work?</h2>
+      <h2 class="text-center mb-4">Wie funktioniert die App?</h2>
       <div class="row">
         <div class="col-md-4" v-for="step in steps" :key="step.id">
           <div class="card h-100 feature-card">
@@ -55,11 +55,10 @@
 
     <!-- About Us Section -->
     <section id="about" class="about-section mt-5">
-      <h2 class="text-center mb-4">About Us</h2>
+      <h2 class="text-center mb-4">Über uns</h2>
       <div class="card about-card">
         <div class="card-body text-center">
-          <h5>About Us</h5>
-          <p>We help you find the best cafeterias around with just a few clicks. Whether you're looking for a quick bite or a full meal, our platform provides you with the best options.</p>
+          <p>Mit StudyBites findest du ganz einfach die besten Mensen in Berlin. Unsere App bietet dir nicht nur aktuelle Speisepläne, sondern auch Informationen zu Inhaltsstoffen, Allergenen und Umweltbilanz. Egal ob du etwas Kleines oder eine volle Mahlzeit suchst – StudyBites zeigt dir die besten Optionen in deiner Nähe.</p>
         </div>
       </div>
     </section>
@@ -70,7 +69,7 @@
 import { ref, onMounted, watch } from 'vue';
 import canteens from '../../canteen.json';
 
-import burgerImage from '@/assets/burger.jpg';
+import featureImage from '@/assets/feature1.jpg';
 import foodImage from '@/assets/food.jpg';
 import veganFoodImage from '@/assets/vegan-food.jpg';
 import vegieImage from '@/assets/vegie.jpg';
@@ -78,17 +77,33 @@ import vegieImage from '@/assets/vegie.jpg';
 export default {
   setup() {
     const offers = ref([
-      { id: 1, title: '15% Off', description: 'Greys Vage', image: burgerImage },
-      { id: 2, title: '10% Off', description: 'Greys Vage', image: foodImage },
-      { id: 3, title: '25% Off', description: 'Greys Vage', image: veganFoodImage },
-      { id: 4, title: '20% Off', description: 'Greys Vage', image: vegieImage },
+      { id: 1, title: 'Tägliches Menü', description: 'Erhalte schnellen Zugang zu den aktuellen Speiseplänen der Berliner Mensen und bleibe immer informiert über die verfügbaren Gerichte.', image: featureImage },
+      { id: 2, title: 'Inhaltsstoffe & Allergene', description: 'Finde detaillierte Informationen zu den Inhaltsstoffen und Allergenen der Gerichte, um sicherzustellen, dass du gut informiert bist.', image: foodImage },
+      { id: 3, title: 'Nachhaltigkeitsinformation', description: 'Erfahre mehr über den Wasser- und CO₂-Verbrauch jedes Gerichts, um nachhaltigere Entscheidungen zu treffen.', image: veganFoodImage },
+      { id: 4, title: 'Nächstgelegene Mensa', description: 'Lass dir die nächstgelegene Mensa anzeigen, damit du immer weißt, wo du schnell und bequem essen kannst.', image: vegieImage },
     ]);
 
     const steps = ref([
-      { id: 1, icon: '📍', title: 'Select Location', description: 'Choose the location of the cafeteria.' },
-      { id: 2, icon: '🛒', title: 'Choose Order', description: 'Check over hundreds of menus.' },
-      { id: 3, icon: '💳', title: 'Check your student card credit', description: 'It\'s quick, safe, and simple. Select several methods of payment.' },
-    ]);
+  { 
+    id: 1, 
+    icon: '📍', 
+    title: 'Standort wählen', 
+    description: 'Wähle die Mensa in deiner Nähe aus.' 
+  },
+  { 
+    id: 2, 
+    icon: '🍽️', 
+    title: 'Speisekarte anzeigen', 
+    description: 'Durchsuche die aktuellen Speisepläne und finde dein Lieblingsgericht.' 
+  },
+  { 
+    id: 3, 
+    icon: '💳', 
+    title: 'Konto prüfen', 
+    description: 'Überprüfe schnell dein Guthaben auf der Mensa-Karte. Einfach und sicher.' 
+  },
+]);
+
 
     const selectedMensa = ref(localStorage.getItem('selectedMensa') || '');
     const mensas = ref([]);
@@ -211,8 +226,12 @@ export default {
 .hero-section {
   padding: 40px 20px;
   background-color: #f8f9fa;
+  border-color: #8EE5EE;
   border-radius: 10px;
+  border-width: 4px; /* Dickere Border */
+  border-style: solid; /* Stellen Sie sicher, dass der Rand sichtbar ist */
 }
+
 
 .hero-section h1 {
   font-size: 2.5rem;
