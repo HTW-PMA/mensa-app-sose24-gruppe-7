@@ -2,8 +2,6 @@
 
 Sommersemester 2024
 
-**Gruppe 07**
-
-Hoang Anh Jemy, Nguyen s0581093
+**Gruppe 05**
 
 Tra My, Nguyen s0579114
