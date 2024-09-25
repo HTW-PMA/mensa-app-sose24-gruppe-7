@@ -1,6 +1,6 @@
 <template>
   <div class="favorites-section container mt-5">
-    <h2 class="text-center mb-5">Your Favorite Meals</h2>
+    <h2 class="text-center mb-5">Deine Lieblingsgerichte!</h2>
     <div v-if="favoriteMeals.length > 0" class="row">
       <div 
         class="col-md-6 col-lg-4 mb-4" 
@@ -53,148 +53,163 @@
 
     <!-- No Favorites -->
     <div v-else class="text-center">
-      <p class="lead">You don't have any favorite meals yet.</p>
+      <p class="lead">Leider hast du noch keine Favoriten gespeichert.</p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import apiService from '../services/apiService';
+import { ref, onMounted } from 'vue'; // `ref` creates reactive variables, `onMounted` runs code after the component is mounted
+import apiService from '../services/apiService'; // Importing the API service that handles requests to get data from the backend
 
-const favoriteMeals = ref([]);
-const badges = ref([]);
-const additives = ref([]);
+// Reactive variables to store favorite meals, badges, and additives
+const favoriteMeals = ref([]); // A list to store favorite meals, initialized as an empty array
+const badges = ref([]); // A list to store badges, initialized as an empty array
+const additives = ref([]); // A list to store additives, initialized as an empty array
 
+// Runs once the component is mounted
 onMounted(async () => {
-  const storedFavoriteIds = JSON.parse(localStorage.getItem('favoriteMeals') || '[]');
-  favoriteMeals.value = await fetchFavoriteMeals(storedFavoriteIds);
-  await fetchBadges();
-  await fetchAdditives();
+  const storedFavoriteIds = JSON.parse(localStorage.getItem('favoriteMeals') || '[]'); // Get favorite meal IDs from localStorage (or an empty array if none exist)
+  favoriteMeals.value = await fetchFavoriteMeals(storedFavoriteIds); // Fetch the meal details for each favorite meal ID and store them in `favoriteMeals`
+  await fetchBadges(); // Fetch badge data (like 'vegan', 'vegetarian', etc.)
+  await fetchAdditives(); // Fetch additives data (like allergens or preservatives)
 });
 
+// Function to fetch meal details by their IDs
 const fetchFavoriteMeals = async (mealIds) => {
-  const meals = [];
+  const meals = []; // Create an empty array to store the meals
   for (const mealId of mealIds) {
     try {
-      const meal = await apiService.getMeal(mealId);
-      meals.push(meal);
+      const meal = await apiService.getMeal(mealId); // Call the API to get meal details by ID
+      meals.push(meal); // Add the meal to the array if the fetch is successful
     } catch (error) {
-      console.error(`Error fetching meal with ID ${mealId}:`, error);
+      console.error(`Error fetching meal with ID ${mealId}:`, error); // Log any error that occurs during the fetch process
     }
   }
-  return meals;
+  return meals; // Return the array of meals after fetching all meal details
 };
 
+// Function to remove a meal from the favorite list
 const removeMeal = (mealId) => {
-  favoriteMeals.value = favoriteMeals.value.filter(meal => meal.id !== mealId);
-  const updatedFavoriteIds = favoriteMeals.value.map(meal => meal.id);
-  localStorage.setItem('favoriteMeals', JSON.stringify(updatedFavoriteIds));
+  favoriteMeals.value = favoriteMeals.value.filter(meal => meal.id !== mealId); // Filter out the meal to remove it from `favoriteMeals`
+  const updatedFavoriteIds = favoriteMeals.value.map(meal => meal.id); // Update the list of favorite meal IDs
+  localStorage.setItem('favoriteMeals', JSON.stringify(updatedFavoriteIds)); // Save the updated list of favorite IDs back to localStorage
 };
 
+// Function to filter meal prices based on the user's role (e.g., 'Student', 'Employee')
 const filteredPrices = (meal) => {
-  const selectedRole = localStorage.getItem('selectedRole') || 'Studierende';
-  return meal.prices.filter(priceItem => priceItem.priceType === selectedRole);
+  const selectedRole = localStorage.getItem('selectedRole') || 'Studierende'; // Get the selected role from localStorage, defaulting to 'Student'
+  return meal.prices.filter(priceItem => priceItem.priceType === selectedRole); // Filter prices that match the selected role
 };
 
+// Function to fetch badge data (like 'vegan', 'vegetarian', etc.)
 const fetchBadges = async () => {
   try {
-    badges.value = await apiService.getBadges();
+    badges.value = await apiService.getBadges(); // Call the API to get the badges and store them in `badges`
   } catch (error) {
-    console.error('Error fetching badges:', error);
+    console.error('Error fetching badges:', error); // Log any error that occurs during the fetch process
   }
 };
 
+// Function to fetch additives data (like allergens or preservatives)
 const fetchAdditives = async () => {
   try {
-    additives.value = await apiService.getAdditives();
+    additives.value = await apiService.getAdditives(); // Call the API to get the additives and store them in `additives`
   } catch (error) {
-    console.error('Error fetching additives:', error);
+    console.error('Error fetching additives:', error); // Log any error that occurs during the fetch process
   }
 };
 
+// Function to get the name and type of a badge by its ID
 const getBadgeName = (badgeId) => {
-  const badge = badges.value.find(b => b.id === badgeId);
-  const name = badge ? badge.name : 'Unknown Badge';
-  let type = 'default';
-  let showText = true;
+  const badge = badges.value.find(b => b.id === badgeId); // Find the badge by its ID in the `badges` array
+  const name = badge ? badge.name : 'Unknown Badge'; // If badge exists, return its name; otherwise, return 'Unknown Badge'
+  let type = 'default'; // Default type for badge
+  let showText = true; // By default, show the badge text
 
+  // Some badge names result in different types or hiding text
   if (name.length === 1) {
-    return { name: '', type, showText: false };
+    return { name: '', type, showText: false }; // If the badge name is only 1 character, don't show it
   }
 
+  // Set badge type based on its name
   switch (name.toUpperCase()) {
     case 'VEGAN':
-      type = 'vegan';
+      type = 'vegan'; // Set type for vegan badge
       break;
     case 'VEGETARISCH':
-      type = 'vegetarian';
+      type = 'vegetarian'; // Set type for vegetarian badge
       break;
     case 'GRÜNER AMPELPUNKT':
-      type = 'green-dot';
+      type = 'green-dot'; // Set type for green dot badge and hide the text
       showText = false;
       break;
     case 'GELBER AMPELPUNKT':
-      type = 'yellow-dot';
+      type = 'yellow-dot'; // Set type for yellow dot badge and hide the text
       showText = false;
       break;
     case 'ROTER AMPELPUNKT':
-      type = 'red-dot';
+      type = 'red-dot'; // Set type for red dot badge and hide the text
       showText = false;
       break;
     case 'CO2_BEWERTUNG_A':
-      return { name: 'CO2 - A', type: 'co2-a', showText: true };
+      return { name: 'CO2 - A', type: 'co2-a', showText: true }; // Handle CO2 badges
     case 'CO2_BEWERTUNG_B':
       return { name: 'CO2 - B', type: 'co2-b', showText: true };
     case 'CO2_BEWERTUNG_C':
       return { name: 'CO2 - C', type: 'co2-c', showText: true };
     case 'H2O_BEWERTUNG_A':
-      return { name: 'H2O - A', type: 'h2o-a', showText: true };
+      return { name: 'H2O - A', type: 'h2o-a', showText: true }; // Handle water (H2O) badges
     case 'H2O_BEWERTUNG_B':
       return { name: 'H2O - B', type: 'h2o-b', showText: true };
     case 'H2O_BEWERTUNG_C':
       return { name: 'H2O - C', type: 'h2o-c', showText: true };
   }
 
-  return { name, type, showText };
+  return { name, type, showText }; // Return the name, type, and text visibility for the badge
 };
 
+// Function to get the description of a badge by its ID
 const getBadgeDescription = (badgeId) => {
-  const badge = badges.value.find(b => b.id === badgeId);
-  return badge && badge.description ? ` ${badge.description}` : '';
+  const badge = badges.value.find(b => b.id === badgeId); // Find the badge by its ID
+  return badge && badge.description ? ` ${badge.description}` : ''; // Return the description if it exists, otherwise return an empty string
 };
 
+// Function to get the style for a meal category
 const getCategoryStyle = (category) => {
-  let type = 'default';
-  let showText = true;
+  let type = 'default'; // Default category type
+  let showText = true; // By default, show the category text
 
+  // Set category style based on its name
   switch (category.toUpperCase()) {
     case 'SALATE':
-      type = 'salad';
+      type = 'salad'; // Set type for salad category
       break;
     case 'SUPPEN':
-      type = 'soup';
+      type = 'soup'; // Set type for soup category
       break;
     case 'ESSEN':
     case 'HAUPTGERICHTE':
-      type = 'main-dish';
+      type = 'main-dish'; // Set type for main dishes
       break;
     case 'BEILAGEN':
-      type = 'side-dish';
+      type = 'side-dish'; // Set type for side dishes
       break;
     case 'DESSERTS':
-      type = 'dessert';
+      type = 'dessert'; // Set type for desserts
       break;
   }
 
-  return { type, showText };
+  return { type, showText }; // Return the type and text visibility for the category
 };
 
+// Function to get the text of an additive by its ID
 const getAdditiveText = (additiveId) => {
-  const additive = additives.value.find(a => a.id === additiveId);
-  return additive ? additive.text : '';
+  const additive = additives.value.find(a => a.id === additiveId); // Find the additive by its ID
+  return additive ? additive.text : ''; // Return the text if the additive exists, otherwise return an empty string
 };
 </script>
+
 
 <style scoped>
 .menu-description {

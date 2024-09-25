@@ -91,8 +91,9 @@
           alert('Keine Mensa gefunden.');
         }
       };
-  
-      const calculateDistance = (lat1, lng1, lat2, lng2) => {
+      
+      const calculateDistance = (lat1, lng1, lat2, lng2) => {  // Function to calculate the distance between two geographical points 
+
         const toRad = value => (value * Math.PI) / 180;
         const R = 6371; // Radius of the Earth in km
         const dLat = toRad(lat2 - lat1);
@@ -122,7 +123,7 @@
         }
       };
   
-      extractData();
+      extractData(); // Call `extractData` to populate the Mensa list when the component is mounted
   
       watch(selectedMensaId, () => {
         updateSelectedMensa();

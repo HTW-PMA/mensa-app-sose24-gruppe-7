@@ -88,143 +88,146 @@
 </template>
 
 <script>
-import MensaSelector from '@/components/MensaSelector.vue';
+import MensaSelector from '@/components/MensaSelector.vue'; // Importing the MensaSelector component
 
 export default {
   components: {
-    MensaSelector
+    MensaSelector // Registering the MensaSelector component for use
   },
   data() {
     return {
-      selectedRole: localStorage.getItem('selectedRole') || 'Studierende',  // Load role from Local Storage 
-      selectedUniversity: localStorage.getItem('selectedUniversity') || '',  // Load universities from Local Storage
-      selectedMensa: localStorage.getItem('selectedMensaId') || '',  // Load canteens from Local Storage
-      universities: [], 
+      selectedRole: localStorage.getItem('selectedRole') || 'Studierende',  // Loading the user role from Local Storage, defaulting to 'Studierende'
+      selectedUniversity: localStorage.getItem('selectedUniversity') || '',  // Loading the selected university from Local Storage
+      selectedMensa: localStorage.getItem('selectedMensaId') || '',  // Loading the selected Mensa from Local Storage
+      universities: [], // An array to hold the list of universities associated with Mensas
       dietPreferences: {
         meat: localStorage.getItem('dietPreferencesMeat') !== null ? JSON.parse(localStorage.getItem('dietPreferencesMeat')) : true,
         vegetarian: localStorage.getItem('dietPreferencesVegetarian') !== null ? JSON.parse(localStorage.getItem('dietPreferencesVegetarian')) : true,
         vegan: localStorage.getItem('dietPreferencesVegan') !== null ? JSON.parse(localStorage.getItem('dietPreferencesVegan')) : true
+        // Loading diet preferences from Local Storage, defaulting to true if not set
       },
-      balance: parseFloat(localStorage.getItem('selectedBalance')) || 0,  // Load balance from Local Storage
-      transactionAmount: 0,
-      currentTime: new Date().toLocaleTimeString()
+      balance: parseFloat(localStorage.getItem('selectedBalance')) || 0,  // Loading the balance from Local Storage, defaulting to 0
+      transactionAmount: 0, // Amount to add or deduct from the balance
+      currentTime: new Date().toLocaleTimeString() // Current time for display
     };
   },
   methods: {
     saveSelection() {
-      // Save selection in Local Storage
+      // Save current selections and preferences in Local Storage
       localStorage.setItem('selectedRole', this.selectedRole);
       localStorage.setItem('selectedUniversity', this.selectedUniversity);
-      localStorage.setItem('selectedMensaId', this.selectedMensa);  // Save mensa id
+      localStorage.setItem('selectedMensaId', this.selectedMensa);
       localStorage.setItem('selectedBalance', this.balance);
 
-      // Save preferences in Local Storage
+      // Save diet preferences in Local Storage
       localStorage.setItem('dietPreferencesMeat', JSON.stringify(this.dietPreferences.meat));
       localStorage.setItem('dietPreferencesVegetarian', JSON.stringify(this.dietPreferences.vegetarian));
       localStorage.setItem('dietPreferencesVegan', JSON.stringify(this.dietPreferences.vegan));
     },
     setInitialBalance() {
+      // Sets the initial balance if the value is positive
       if (this.initialBalance >= 0) {
         this.balance = this.initialBalance;
-        this.saveSelection(); // Save balance
+        this.saveSelection(); // Save the updated balance in Local Storage
       } else {
-        alert('Das Guthaben darf nicht negativ sein');
+        alert('Das Guthaben darf nicht negativ sein'); // Alert if negative balance
       }
     },
     addMoney() {
+      // Add money to the balance and save the change
       if (this.transactionAmount > 0) {
         this.balance += this.transactionAmount;
-        this.saveSelection(); // Save balance
+        this.saveSelection(); // Save the updated balance in Local Storage
       } else {
-        alert('Bitte einen gültigen Betrag eingeben');
+        alert('Bitte einen gültigen Betrag eingeben'); // Alert if the input is invalid
       }
     },
     deductMoney() {
+      // Deduct money from the balance and save the change
       if (this.transactionAmount > 0 && this.transactionAmount <= this.balance) {
         this.balance -= this.transactionAmount;
-        this.saveSelection(); // Save balance
+        this.saveSelection(); // Save the updated balance in Local Storage
       } else {
-        alert('Bitte einen gültigen Betrag eingeben');
+        alert('Bitte einen gültigen Betrag eingeben'); // Alert if the input is invalid or exceeds the balance
       }
     },
     extractData() {
-  
+      // Extracts and prepares data from the canteen list
       const universitySet = new Set();
       canteens.forEach(canteen => {
-        canteen.universities.forEach(uni => universitySet.add(uni));
+        canteen.universities.forEach(uni => universitySet.add(uni)); // Collect all universities linked to Mensas
       });
-      this.universities = Array.from(universitySet); 
+      this.universities = Array.from(universitySet); // Store unique universities
 
-  
       this.allMensas = canteens.map(canteen => ({
         name: canteen.name,
-        universities: canteen.universities,
+        universities: canteen.universities, // Mapping canteen data to a new structure
         id: canteen.id,
         address: canteen.address
       }));
 
-      this.filterCanteensByUniversity(); 
+      this.filterCanteensByUniversity(); // Filter the canteens based on the selected university
     },
     filterCanteensByUniversity() {
+      // Filter the list of canteens based on the selected university
       if (this.selectedUniversity) {
-        // Filter canteens based on selected university 
         this.mensas = this.allMensas.filter(mensa =>
           mensa.universities.includes(this.selectedUniversity)
         );
       } else {
-        // Show all canteens when nothing is selected
-        this.mensas = this.allMensas;
+        this.mensas = this.allMensas; // Show all canteens if no university is selected
       }
-      this.saveSelection(); 
+      this.saveSelection(); // Save changes in the selected university
     },
     saveSettings() {
+      // Save user selections and preferences
       this.saveSelection();
-      // You can add visual feedback here, such as a temporary message
-      alert('Einstellungen wurden gespeichert!');
-      // Or use a more subtle approach like a temporary text display
-      // this.showSavedMessage = true;
-      // setTimeout(() => this.showSavedMessage = false, 3000);
-    },
+      alert('Einstellungen wurden gespeichert!'); // Notify the user that settings have been saved
+    }
   },
   computed: {
     shouldShowInitialBalanceInput() {
-      // Show initial Balance only if the balance equals 0
+      // Shows the initial balance input only if the balance is 0
       return this.balance === 0;
     }
   },
   watch: {
-    // Watchers for automated saving of changes
+    // Automatically save changes when specific data changes
     selectedRole(newValue) {
-      this.saveSelection();
+      this.saveSelection(); // Save the selected role when it changes
     },
     selectedUniversity(newValue) {
-      this.saveSelection();
+      this.saveSelection(); // Save the selected university when it changes
     },
     selectedMensa(newValue) {
-      this.saveSelection();
-      // Clear relevant local storage items
+      this.saveSelection(); // Save the selected Mensa when it changes
+
+      // Clear local storage items related to meals and badges
       Object.keys(localStorage).forEach(key => {
         if (key.startsWith('meals_') || key.startsWith('menue_') || key === 'badges') {
-          localStorage.removeItem(key);
-          console.log('removed', key);
+          localStorage.removeItem(key); // Remove meal and badge data from Local Storage
+          console.log('removed', key); // Log the removed item for debugging purposes
         }
       });
     },
     dietPreferences: {
-      deep: true, 
+      deep: true, // watch on the dietPreferences object
       handler(newValue) {
-        this.saveSelection();
+        this.saveSelection(); // Save diet preferences when they change
       }
     },
     balance(newValue) {
-      localStorage.setItem('selectedBalance', newValue);
+      localStorage.setItem('selectedBalance', newValue); // Save the updated balance when it changes
     }
   },
   mounted() {
-    this.extractData();
+    // This code runs when the component is mounted
+    this.extractData(); // Extract Mensa data on component mount
     setInterval(() => {
-      this.currentTime = new Date().toLocaleTimeString();
+      this.currentTime = new Date().toLocaleTimeString(); // Update the current time every second
     }, 1000);
+    
+    // Set default values for diet preferences if not already in Local Storage
     if (localStorage.getItem('dietPreferencesMeat') === null) {
       localStorage.setItem('dietPreferencesMeat', JSON.stringify(true));
     }
@@ -236,8 +239,8 @@ export default {
     }
   }
 };
-
 </script>
+
 
 <style scoped>
 .container {
