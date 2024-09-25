@@ -257,8 +257,39 @@ export default {
 }
 
 /* Offers Section */
+/* Offers Section */
 .offers-section {
   padding: 40px 0;
+}
+
+/* Stellt sicher, dass die Karten flexibel in der Breite sind und bei kleineren Bildschirmen auf volle Breite skalieren */
+.offers-section .card {
+  flex: 1 1 100%; /* Standardmäßig volle Breite */
+  margin-bottom: 20px;
+}
+
+@media (min-width: 576px) {
+  .offers-section .card {
+    flex: 1 1 calc(50% - 20px); /* Bei kleinen Bildschirmen, zwei Karten nebeneinander */
+  }
+}
+
+@media (min-width: 768px) {
+  .offers-section .card {
+    flex: 1 1 calc(33.333% - 20px); /* Bei mittleren Bildschirmen, drei Karten nebeneinander */
+  }
+}
+
+@media (min-width: 992px) {
+  .offers-section .card {
+    flex: 1 1 calc(25% - 20px); /* Bei großen Bildschirmen, vier Karten nebeneinander */
+  }
+}
+
+.offers-section .d-flex {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap; /* Stellt sicher, dass die Karten auf mobilen Geräten umgebrochen werden */
 }
 
 .card-img-top {
