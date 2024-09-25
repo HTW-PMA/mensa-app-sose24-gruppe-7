@@ -293,24 +293,26 @@ export default {
 
 <template>
   <div class="container">
-    <div class="navigation row my-3">
-      <div class="col-auto">
+    <div class="navigation-wrapper my-3">
+      <div class="navigation">
         <button id="prev" class="arrow-button btn btn-primary btn-sm" @click="changeDay(-1)">
           <span class="arrow">←</span>
         </button>
-      </div>
-      <div class="col">
-        <div class="days-container text-center">
+        <div class="days-container">
           <div class="days">
-            <div v-for="(day, index) in daysOfWeek" :key="day" class="day"
-              :class="{ selected: isSelectedDay(index) }" @click="handleDayClick(index)">
+            <div
+              v-for="(day, index) in daysOfWeek"
+              :key="day"
+              ref="dayElements"
+              class="day"
+              :class="{ selected: isSelectedDay(index) }"
+              @click="handleDayClick(index)"
+            >
               <p class="day-name">{{ day.toUpperCase() }}</p>
               <p class="date">{{ formatDate(getDateForDay(index)) }}</p>
             </div>
           </div>
         </div>
-      </div>
-      <div class="col-auto">
         <button id="next" class="arrow-button btn btn-primary btn-sm" @click="changeDay(1)">
           <span class="arrow">→</span>
         </button>
@@ -319,16 +321,23 @@ export default {
 
     <!-- Category filter buttons -->
     <div class="category-filters text-center my-2">
-      <button v-for="category in ['ALLES', 'SALATE', 'ESSEN', 'BEILAGEN', 'DESSERTS']" :key="category"
+      <button
+        v-for="category in ['ALLES', 'SALATE', 'ESSEN', 'BEILAGEN', 'DESSERTS']"
+        :key="category"
         :class="['btn', 'btn-outline-primary', 'btn-sm', { active: selectedCategory === category }]"
-        @click="selectCategory(category)">
+        @click="selectCategory(category)"
+      >
         {{ category }}
       </button>
     </div>
 
     <!-- Button to toggle the legend -->
     <div class="text-center mb-3">
-      <button class="btn btn-info btn-sm" @click="toggleLegend">
+      <button
+        class="btn btn-outline-primary btn-sm"
+        :class="{ active: isLegendVisible }"
+        @click="toggleLegend"
+      >
         {{ isLegendVisible ? 'Hide Legend' : 'Show Legend' }}
       </button>
     </div>
@@ -340,48 +349,48 @@ export default {
           <ul class="menu-list container">
             <li v-for="meal in filteredMeals" :key="meal.id" class="menu-item">
               <div class="card">
-                <div class="card-body d-flex align-items-center">
-                  <!-- Beschreibung links -->
-                  <div class="menu-description flex-grow-1">
-                    <div class="dish-header">
-                      <div class="meal-header d-flex align-items-center">
-                        <h4 class="meal-title">{{ meal.name }}</h4>
-                        <button @click.stop="toggleFavorite(meal.id)" class="favorite-button btn btn-link btn-sm">
-                          <span v-if="isFavorite(meal.id)">★</span>
-                          <span v-else>☆</span>
-                        </button>
-                      </div>
-                      <!-- Badges und Kategorie -->
-                      <div class="badges-wrapper">
-                        <div class="badges">
-                          <span v-for="badgeId in meal.badges" :key="badgeId"
-                            :class="['badge', 'badge-item', `${getBadgeName(badgeId).type}-badge`]">
-                            <span v-if="getBadgeName(badgeId).showText">{{ getBadgeName(badgeId).name }}</span>
-                          </span>
-                          <span :class="['badge', 'category-badge', `${getCategoryStyle(meal.category).type}-badge`]">
-                            {{ meal.category }}
-                          </span>
-                        </div>
-                      </div>
-                      <!-- Preise und Allergene -->
-                      <div class="menu-description">
-                        <p class="additives-info">
-                          Allergene: 
-                          <span v-for="additiveId in meal.additives" :key="additiveId" class="additive">
-                            {{ getAdditiveText(additiveId) }}
-                          </span>
-                        </p>
-                        <div class="prices">
-                          <span v-for="priceItem in filteredPrices(meal)" :key="priceItem.priceType" class="price">
-                            {{ priceItem.priceType }}: {{ priceItem.price.toFixed(2) }}€
-                          </span>
-                        </div>
+                <div class="card-body d-flex">
+                  <!-- Image based on meal category -->
+                  <div class="menu-img-container">
+                    <img :src="getImageForCategory(meal.category)" alt="Meal Image" class="menu-img" />
+                  </div>
+                  <div class="menu-content">
+                    <div class="meal-header">
+                      <h4 class="meal-title">{{ meal.name }}</h4>
+                      <button @click.stop="toggleFavorite(meal.id)" class="favorite-button btn btn-link btn-sm">
+                        <span v-if="isFavorite(meal.id)">★</span>
+                        <span v-else>☆</span>
+                      </button>
+                    </div>
+                    <!-- Badges and category -->
+                    <div class="badges-wrapper">
+                      <div class="badges">
+                        <span
+                          v-for="badgeId in meal.badges"
+                          :key="badgeId"
+                          :class="['badge', 'badge-item', `${getBadgeName(badgeId).type}-badge`]"
+                        >
+                          <span v-if="getBadgeName(badgeId).showText">{{ getBadgeName(badgeId).name }}</span>
+                        </span>
+                        <span :class="['badge', 'category-badge', `${getCategoryStyle(meal.category).type}-badge`]">
+                          {{ meal.category }}
+                        </span>
                       </div>
                     </div>
-                  </div>
-                  <!-- Bild rechts -->
-                  <div class="menu-image ml-3">
-                    <img :src="getImageForCategory(meal.category)" alt="Meal Image" class="menu-img">
+                    <!-- Prices and additives -->
+                    <div class="menu-description">
+                      <p class="additives-info">
+                        Allergene:
+                        <span v-for="additiveId in meal.additives" :key="additiveId" class="additive">
+                          {{ getAdditiveText(additiveId) }}
+                        </span>
+                      </p>
+                      <div class="prices">
+                        <span v-for="priceItem in filteredPrices(meal)" :key="priceItem.priceType" class="price">
+                          {{ priceItem.priceType }}: {{ priceItem.price.toFixed(2) }}€
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -390,15 +399,13 @@ export default {
         </div>
       </div>
 
-      <!-- Legende in einer Bootstrap-Spalte -->
+      <!-- Legend component in a Bootstrap column -->
       <div v-if="isLegendVisible" class="col-lg-3">
         <Legend />
       </div>
     </div>
   </div>
 </template>
-
-
 
 <style scoped>
 /* Style updates for active category button */
@@ -455,20 +462,23 @@ export default {
   background-color: #0056b3;
 }
 
+.navigation-wrapper {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+}
+
 .navigation {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
-  background-color: #f8f9fa;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .days-container {
   flex-grow: 1;
   overflow: hidden;
+  margin: 0 10px;
 }
 
 .days {
@@ -489,12 +499,17 @@ export default {
   background-color: #007bff;
   border: none;
   color: white;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   cursor: pointer;
-  padding: 10px;
+  padding: 8px;
   border-radius: 50%;
   transition: background-color 0.3s ease;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
 }
 
 .arrow-button:hover {
@@ -507,24 +522,31 @@ export default {
   margin: 0 5px;
   text-align: center;
   padding: 10px;
-  color: gray;
+  color: #007bff;
   transition: color 0.3s ease, background-color 0.3s ease;
   cursor: pointer;
   border-radius: 8px;
+  border: 1px solid #007bff;
 }
 
 .day:hover {
   background-color: #e9ecef;
 }
 
-.selected {
+.day.selected {
   color: white;
   font-weight: bold;
   background-color: #007bff;
 }
 
-.selected .date {
-  color: white;
+.day.selected:hover {
+  color: #007bff;
+  background-color: #e9ecef;
+}
+
+.day .date {
+  font-size: 0.9rem;
+  color: inherit;
 }
 
 .date {
@@ -580,7 +602,6 @@ li {
   height: 100px;
   object-fit: cover;
   border-radius: 8px;
-  margin-left: 20px;
 }
 
 .menu-description {
@@ -592,7 +613,6 @@ li {
   word-wrap: break-word;
   overflow-y: auto;
   max-height: 150px;
-  flex-grow: 1;
 }
 
 .badge-descriptions {
@@ -899,5 +919,130 @@ li {
     max-width: none;
     flex-grow: 0;
   }
+}
+
+@media (max-width: 576px) {
+  .navigation-wrapper {
+    padding: 5px;
+  }
+
+  .arrow-button {
+    font-size: 1rem;
+    padding: 6px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .days-container {
+    margin: 0 5px;
+  }
+
+  .day {
+    min-width: 60px;
+    padding: 5px;
+  }
+
+  .day-name {
+    font-size: 0.8rem;
+  }
+
+  .date {
+    font-size: 0.7rem;
+  }
+}
+
+.card-body {
+  display: flex;
+  padding: 1rem;
+}
+
+.menu-img-container {
+  flex: 0 0 auto;
+  margin-right: 1rem;
+}
+
+.menu-img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.menu-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.meal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.meal-title {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.favorite-button {
+  padding: 0;
+  font-size: 1.5rem;
+}
+
+.badges-wrapper {
+  margin-bottom: 0.5rem;
+}
+
+.menu-description {
+  font-size: 0.9rem;
+}
+
+.additives-info {
+  margin-bottom: 0.5rem;
+}
+
+.prices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+@media (max-width: 576px) {
+  .card-body {
+    flex-direction: column;
+  }
+
+  .menu-img-container {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+
+  .menu-img {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+  }
+}
+
+.btn-outline-primary {
+  color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-outline-primary:hover {
+  color: #007bff;
+  background-color: #e9ecef;
+}
+
+.btn-outline-primary.active {
+  color: white;
+  background-color: #007bff;
+}
+
+.btn-outline-primary.active:hover {
+  color: #007bff;
+  background-color: #e9ecef;
 }
 </style>

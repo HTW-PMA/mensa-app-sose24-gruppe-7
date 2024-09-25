@@ -26,17 +26,9 @@
         </div>
 
         <!-- Mensa Selection with Pin Button -->
-        <div class="mb-3 form-group">
+        <div class="mb-3">
           <label for="mensaSelect" class="form-label text-start">Mensa</label>
-          <div class="input-group">
-            <select class="form-select" id="mensaSelect" v-model="selectedMensa">
-              <option v-for="mensa in mensas" :key="mensa.name">{{ mensa.name }}</option>
-            </select>
-            <!-- Pin button for nearest cafeteria -->
-            <button class="btn btn-outline-primary" @click="findNearestCafeteria">
-              📍
-            </button>
-          </div>
+          <MensaSelector v-model:selectedMensa="selectedMensa" />
         </div>
 
         <!-- Diet Preference with Checkboxes -->
@@ -57,7 +49,9 @@
         </div>
 
         <!-- Save Button -->
-        <button class="btn btn-success mt-3" @click="saveSelection">Speichern</button>
+        <div class="mb-3">
+          <button @click="saveSettings" class="btn btn-success">Einstellungen speichern</button>
+        </div>
       </div>
     </div>
 
@@ -93,24 +87,23 @@
   </div>
 </template>
 
-
-
 <script>
-import canteens from '../../canteen.json'; 
+import MensaSelector from '@/components/MensaSelector.vue';
 
 export default {
+  components: {
+    MensaSelector
+  },
   data() {
     return {
       selectedRole: localStorage.getItem('selectedRole') || 'Studierende',  // Load role from Local Storage 
       selectedUniversity: localStorage.getItem('selectedUniversity') || '',  // Load universities from Local Storage
-      selectedMensa: localStorage.getItem('selectedMensa') || '',  // Load canteens from Local Storage
+      selectedMensa: localStorage.getItem('selectedMensaId') || '',  // Load canteens from Local Storage
       universities: [], 
-      mensas: [], 
-      allMensas: [], 
       dietPreferences: {
-        meat: localStorage.getItem('dietPreferencesMeat') !== null ? JSON.parse(localStorage.getItem('dietPreferencesMeat')) : false,
-        vegetarian: localStorage.getItem('dietPreferencesVegetarian') !== null ? JSON.parse(localStorage.getItem('dietPreferencesVegetarian')) : false,
-        vegan: localStorage.getItem('dietPreferencesVegan') !== null ? JSON.parse(localStorage.getItem('dietPreferencesVegan')) : false
+        meat: localStorage.getItem('dietPreferencesMeat') !== null ? JSON.parse(localStorage.getItem('dietPreferencesMeat')) : true,
+        vegetarian: localStorage.getItem('dietPreferencesVegetarian') !== null ? JSON.parse(localStorage.getItem('dietPreferencesVegetarian')) : true,
+        vegan: localStorage.getItem('dietPreferencesVegan') !== null ? JSON.parse(localStorage.getItem('dietPreferencesVegan')) : true
       },
       balance: parseFloat(localStorage.getItem('selectedBalance')) || 0,  // Load balance from Local Storage
       transactionAmount: 0,
@@ -122,7 +115,7 @@ export default {
       // Save selection in Local Storage
       localStorage.setItem('selectedRole', this.selectedRole);
       localStorage.setItem('selectedUniversity', this.selectedUniversity);
-      localStorage.setItem('selectedMensa', this.selectedMensa);
+      localStorage.setItem('selectedMensaId', this.selectedMensa);  // Save mensa id
       localStorage.setItem('selectedBalance', this.balance);
 
       // Save preferences in Local Storage
@@ -131,7 +124,8 @@ export default {
       localStorage.setItem('dietPreferencesVegan', JSON.stringify(this.dietPreferences.vegan));
     },
     setInitialBalance() {
-      if (this.balance >= 0) {
+      if (this.initialBalance >= 0) {
+        this.balance = this.initialBalance;
         this.saveSelection(); // Save balance
       } else {
         alert('Das Guthaben darf nicht negativ sein');
@@ -153,9 +147,6 @@ export default {
         alert('Bitte einen gültigen Betrag eingeben');
       }
     },
-    findNearestCafeteria() {
-      alert('Nächste Mensa wird gesucht...');
-    },
     extractData() {
   
       const universitySet = new Set();
@@ -167,7 +158,9 @@ export default {
   
       this.allMensas = canteens.map(canteen => ({
         name: canteen.name,
-        universities: canteen.universities
+        universities: canteen.universities,
+        id: canteen.id,
+        address: canteen.address
       }));
 
       this.filterCanteensByUniversity(); 
@@ -183,7 +176,15 @@ export default {
         this.mensas = this.allMensas;
       }
       this.saveSelection(); 
-    }
+    },
+    saveSettings() {
+      this.saveSelection();
+      // You can add visual feedback here, such as a temporary message
+      alert('Einstellungen wurden gespeichert!');
+      // Or use a more subtle approach like a temporary text display
+      // this.showSavedMessage = true;
+      // setTimeout(() => this.showSavedMessage = false, 3000);
+    },
   },
   computed: {
     shouldShowInitialBalanceInput() {
@@ -201,12 +202,22 @@ export default {
     },
     selectedMensa(newValue) {
       this.saveSelection();
+      // Clear relevant local storage items
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('meals_') || key.startsWith('menue_') || key === 'badges') {
+          localStorage.removeItem(key);
+          console.log('removed', key);
+        }
+      });
     },
     dietPreferences: {
       deep: true, 
       handler(newValue) {
         this.saveSelection();
       }
+    },
+    balance(newValue) {
+      localStorage.setItem('selectedBalance', newValue);
     }
   },
   mounted() {
@@ -214,12 +225,26 @@ export default {
     setInterval(() => {
       this.currentTime = new Date().toLocaleTimeString();
     }, 1000);
+    if (localStorage.getItem('dietPreferencesMeat') === null) {
+      localStorage.setItem('dietPreferencesMeat', JSON.stringify(true));
+    }
+    if (localStorage.getItem('dietPreferencesVegetarian') === null) {
+      localStorage.setItem('dietPreferencesVegetarian', JSON.stringify(true));
+    }
+    if (localStorage.getItem('dietPreferencesVegan') === null) {
+      localStorage.setItem('dietPreferencesVegan', JSON.stringify(true));
+    }
   }
 };
 
 </script>
 
 <style scoped>
+.navbar {
+  z-index: 1050; /* Höchste Priorität für die Navbar, damit sie über anderen Elementen liegt */
+  position: relative; /* Stelle sicher, dass die Navbar an ihrer relativen Position bleibt */
+}
+
 .container {
   max-width: 600px;
 }

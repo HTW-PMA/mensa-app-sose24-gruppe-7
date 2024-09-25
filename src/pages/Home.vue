@@ -8,20 +8,18 @@
           <h1>Bist du schon hunrig?</h1>
           <p>Mit nur wenigen Klicks findest du eine Mensa in deiner Nähe. Klicke einfach auf den Pin, um deinem Ziel einen Schritt näher zu kommen.</p>
           <h3>Mensen in deiner:</h3>
-          <div class="mb-3 form-group">
-            <div class="input-group">
-              <select class="form-select" id="mensaSelect" v-model="selectedMensa">
-                <option v-for="mensa in mensas" :key="mensa.id" :value="mensa.id">{{ mensa.name }}</option>
-              </select>
-              <!-- Pin button for nearest cafeteria -->
-              <button class="btn btn-outline-primary" @click="findNearestCafeteria">
-                📍
-              </button>
-            </div>
-          </div>
+          
+        <!-- Mensa Selection with Pin Button -->
+        <MensaSelector v-model:selectedMensa="selectedMensa" />
+
+              
+          
+     
         </section>
       </div>
     </div>
+
+
 
     <!-- Offers Section -->
     <div class="offers-section container mt-5">
@@ -68,13 +66,16 @@
 <script>
 import { ref, onMounted, watch } from 'vue';
 import canteens from '../../canteen.json';
-
+import MensaSelector from '../components/MensaSelector.vue';
 import featureImage from '@/assets/feature1.jpg';
 import foodImage from '@/assets/food.jpg';
 import veganFoodImage from '@/assets/vegan-food.jpg';
 import vegieImage from '@/assets/vegie.jpg';
 
 export default {
+  components: {
+    MensaSelector
+  },
   setup() {
     const offers = ref([
       { id: 1, title: 'Tägliches Menü', description: 'Erhalte schnellen Zugang zu den aktuellen Speiseplänen der Berliner Mensen und bleibe immer informiert über die verfügbaren Gerichte.', image: featureImage },
