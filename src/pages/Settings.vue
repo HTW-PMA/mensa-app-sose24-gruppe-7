@@ -240,11 +240,6 @@ export default {
 </script>
 
 <style scoped>
-.navbar {
-  z-index: 1050; /* Höchste Priorität für die Navbar, damit sie über anderen Elementen liegt */
-  position: relative; /* Stelle sicher, dass die Navbar an ihrer relativen Position bleibt */
-}
-
 .container {
   max-width: 600px;
 }
