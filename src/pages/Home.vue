@@ -11,29 +11,23 @@
           
         <!-- Mensa Selection with Pin Button -->
         <MensaSelector v-model:selectedMensa="selectedMensa" />
-
-              
-          
-     
         </section>
       </div>
     </div>
 
-
-
     <!-- Offers Section -->
     <div class="offers-section container mt-5">
-    <h2 class="text-center mb-4">Unser Angebot</h2>
-    <div class="d-flex justify-content-between flex-wrap">
-      <div class="card mb-4" v-for="offer in offers" :key="offer.id" style="width: 18rem;">
-        <img :src="offer.image" class="card-img-top" alt="Offer Image" />
-        <div class="card-body">
-          <h5 class="card-title">{{ offer.title }}</h5>
-          <p class="card-text">{{ offer.description }}</p>
+      <h2 class="text-center mb-4">Unser Angebot</h2>
+      <div class="d-flex justify-content-between flex-wrap">
+        <div class="card mb-4" v-for="offer in offers" :key="offer.id" style="width: 18rem;">
+          <img :src="offer.image" class="card-img-top" alt="Offer Image" />
+          <div class="card-body">
+            <h5 class="card-title">{{ offer.title }}</h5>
+            <p class="card-text">{{ offer.description }}</p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
     <!-- How It Works Section -->
     <section class="how-it-works mt-5">
@@ -57,11 +51,20 @@
       <div class="card about-card">
         <div class="card-body text-center">
           <p>Mit StudyBites findest du ganz einfach die besten Mensen in Berlin. Unsere App bietet dir nicht nur aktuelle Speisepläne, sondern auch Informationen zu Inhaltsstoffen, Allergenen und Umweltbilanz. Egal ob du etwas Kleines oder eine volle Mahlzeit suchst – StudyBites zeigt dir die besten Optionen in deiner Nähe.</p>
+          
+          <!-- QR Code Image -->
+          <img src="@/assets/studybites-1024.svg" alt="QR Code" class="qr-code mt-4" />
+
+          <!-- Text Box Below QR Code -->
+          <div class="info-box mt-4 p-3">
+            <p>Für ein besseres Nutzererlebnis könnt ihr auch unseren QR-Code scannen und euch die Anwendung bequem auf dem Handy anschauen.</p>
+          </div>
         </div>
       </div>
     </section>
   </div>
 </template>
+
 
 <script>
 import { ref, onMounted, watch } from 'vue';
@@ -299,4 +302,24 @@ export default {
 .about-card .card-body {
   padding: 30px;
 }
+
+/* QR Code Styling */
+.qr-code {
+  width: 200px;
+  height: auto;
+}
+
+/* Text Box Styling */
+.info-box {
+  background-color: #f0f8ff;
+  border-radius: 10px;
+  border: 2px solid #8EE5EE;
+  max-width: 400px;
+  margin: 0 auto; /* Center the box */
+  text-align: center;
+  font-size: 1.1rem;
+  color: #333;
+}
 </style>
+
+
